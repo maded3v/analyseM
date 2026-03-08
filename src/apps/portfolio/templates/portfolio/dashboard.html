@@ -1,0 +1,751 @@
+﻿<!doctype html>
+<html lang="ru" data-theme="light" data-bs-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Дашборд анализа портфеля (RUB)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root {
+      --page-bg: #f1f5f9;
+      --panel-bg: rgba(255, 255, 255, 0.76);
+      --panel-border: rgba(148, 163, 184, 0.35);
+      --text-color: #0f172a;
+      --muted-color: #475569;
+      --accent: #0f766e;
+      --accent-soft: #99f6e4;
+      --danger-soft: #fecaca;
+      --shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+      --chart-bg: #ffffff;
+    }
+
+    html[data-theme="dark"] {
+      --page-bg: #0b1220;
+      --panel-bg: rgba(15, 23, 42, 0.78);
+      --panel-border: rgba(71, 85, 105, 0.45);
+      --text-color: #e2e8f0;
+      --muted-color: #94a3b8;
+      --accent: #2dd4bf;
+      --accent-soft: rgba(45, 212, 191, 0.18);
+      --danger-soft: rgba(248, 113, 113, 0.22);
+      --shadow: 0 22px 50px rgba(2, 6, 23, 0.55);
+      --chart-bg: #111827;
+    }
+
+    body {
+      background:
+        radial-gradient(900px 500px at 0% 0%, rgba(45, 212, 191, 0.2), transparent 65%),
+        radial-gradient(900px 500px at 100% 100%, rgba(14, 165, 233, 0.16), transparent 60%),
+        var(--page-bg);
+      color: var(--text-color);
+      min-height: 100vh;
+      font-family: "Inter", sans-serif;
+      letter-spacing: 0.01em;
+    }
+
+    .page-shell {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 24px 14px 42px;
+      animation: fadeIn 320ms ease-out;
+    }
+
+    .glass {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero { padding: 20px; margin-bottom: 16px; }
+    .hero h1 { margin: 0; font-family: "Inter", sans-serif; font-weight: 700; font-size: clamp(1.2rem, 1.9vw, 1.9rem); }
+    .hero p { margin: 8px 0 0; color: var(--muted-color); font-size: 0.95rem; }
+
+    .pill {
+      border-radius: 999px;
+      padding: 8px 12px;
+      border: 1px solid var(--panel-border);
+      background: var(--accent-soft);
+      color: var(--text-color);
+      font-size: 0.82rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .layout { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    .controls, .results { padding: 16px; }
+    .section-title { font-family: "Inter", sans-serif; font-weight: 700; margin: 0 0 12px; font-size: 1.03rem; }
+
+    .input-mode {
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 12px;
+      background: color-mix(in srgb, var(--panel-bg) 92%, transparent);
+      margin-bottom: 10px;
+    }
+
+    .asset-row {
+      border: 1px dashed var(--panel-border);
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 10px;
+      transition: border-color 160ms ease;
+    }
+
+    .asset-row:focus-within { border-color: var(--accent); }
+    .mono { font-family: Consolas, "Courier New", monospace; }
+
+    .card, .form-control, .form-select {
+      background: color-mix(in srgb, var(--panel-bg) 96%, transparent);
+      border-color: var(--panel-border);
+      color: var(--text-color);
+      border-radius: 12px;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent) 25%, transparent);
+      background: color-mix(in srgb, var(--panel-bg) 96%, transparent);
+      color: var(--text-color);
+    }
+
+    .form-check-input:checked { background-color: var(--accent); border-color: var(--accent); }
+    .hint { color: var(--muted-color); font-size: 0.85rem; }
+
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .metric-card { border: 1px solid var(--panel-border); border-radius: 14px; padding: 10px; background: color-mix(in srgb, var(--panel-bg) 94%, transparent); }
+    .metric-card h3 { margin: 0 0 8px; font-size: 0.94rem; font-family: "Inter", sans-serif; font-weight: 700; }
+        .result-text {
+      margin: 0;
+      max-height: 220px;
+      overflow: auto;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .tips-text {
+      margin: 0;
+      max-height: none;
+      overflow: visible;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .score-chip {
+      display: inline-block;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      margin-bottom: 8px;
+    }
+
+    .score-red { background: #fee2e2; color: #991b1b; }
+    .score-yellow { background: #fef3c7; color: #92400e; }
+    .score-green { background: #dcfce7; color: #166534; }
+
+    .chart-block { border: 1px solid var(--panel-border); border-radius: 14px; padding: 10px; margin-bottom: 12px; background: color-mix(in srgb, var(--panel-bg) 94%, transparent); }
+    .chart-title { margin: 0 0 8px; font-size: 0.95rem; font-family: "Inter", sans-serif; font-weight: 700; }
+    .chart { height: 360px; border: 1px solid var(--panel-border); border-radius: 10px; background: var(--chart-bg); }
+
+    .btn-primary { background: var(--accent); border-color: var(--accent); font-weight: 600; }
+    .btn-primary:hover { filter: brightness(0.95); border-color: var(--accent); background: var(--accent); }
+
+    .btn-outline-danger {
+      border-color: color-mix(in srgb, #ef4444 45%, var(--panel-border));
+      color: #ef4444;
+      background: color-mix(in srgb, var(--danger-soft) 45%, transparent);
+    }
+
+    .btn-outline-danger:hover { color: #fff; background: #ef4444; border-color: #ef4444; }
+    .hidden { display: none; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 1080px) { .chart { height: 330px; } .stats-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="page-shell">
+  <section class="hero glass">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+      <div>
+        <h1>Портфельная аналитика и оптимизация в рублях</h1>
+        <p>Ручной ввод или JSON, расчеты Марковица, Monte Carlo и визуализация рисков.</p>
+      </div>
+      <div class="d-flex gap-2 align-items-center flex-wrap">
+        <button id="themeBtn" class="btn btn-outline-secondary btn-sm" type="button">Темная тема</button>
+        <span class="pill">Базовая валюта: RUB</span>
+        <span class="pill">Django + SciPy + Plotly</span>
+      </div>
+    </div>
+  </section>
+
+    <section class="layout">
+    <aside class="controls glass">
+      <h2 class="section-title">Входные данные</h2>
+
+      <div class="input-mode">
+        <div class="fw-semibold mb-2">Формат загрузки портфеля</div>
+        <div class="d-flex gap-3 flex-wrap">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="inputMode" id="modeManual" value="manual" checked>
+            <label class="form-check-label" for="modeManual">Ручной ввод</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="inputMode" id="modeJson" value="json">
+            <label class="form-check-label" for="modeJson">JSON</label>
+          </div>
+        </div>
+      </div>
+
+      <div id="manualSection" class="mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="fw-semibold">Активы и цены (RUB)</div>
+          <div class="d-flex gap-2">
+            <button id="fillRuSampleBtn" type="button" class="btn btn-outline-secondary btn-sm">Шаблон RU</button>
+            <button id="addAssetBtn" type="button" class="btn btn-outline-primary btn-sm">+ Актив</button>
+          </div>
+        </div>
+
+        <div id="assetRows"></div>
+
+        <div class="row g-3 mt-1">
+          <div class="col-12 col-lg-4">
+            <label for="startDate" class="form-label">Дата начала ряда</label>
+            <input id="startDate" type="date" class="form-control" value="2026-01-01" />
+          </div>
+          <div class="col-12 col-lg-8 d-flex align-items-end">
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="autoDates" checked>
+              <label class="form-check-label" for="autoDates">Автоматически генерировать даты по количеству цен</label>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <label for="riskFreeRate" class="form-label">Безрисковая ставка</label>
+            <input id="riskFreeRate" type="number" step="0.0001" class="form-control" value="0.17" />
+          </div>
+          <div class="col-6 col-lg-3">
+            <label for="nPortfolios" class="form-label">Monte Carlo</label>
+            <input id="nPortfolios" type="number" min="100" class="form-control" value="1500" />
+          </div>
+          <div class="col-6 col-lg-3">
+            <label for="frontierPoints" class="form-label">Точек границы</label>
+            <input id="frontierPoints" type="number" min="2" class="form-control" value="25" />
+          </div>
+          <div class="col-6 col-lg-3">
+            <label for="sampleLimit" class="form-label">Точек графика</label>
+            <input id="sampleLimit" type="number" min="50" class="form-control" value="400" />
+          </div>
+        </div>
+
+        <div class="mt-3 d-flex gap-2">
+          <button id="toJsonBtn" type="button" class="btn btn-outline-secondary btn-sm">Преобразовать в JSON</button>
+        </div>
+      </div>
+
+      <div id="jsonSection" class="hidden">
+        <label for="payload" class="form-label fw-semibold">Payload JSON</label>
+        <textarea id="payload" class="form-control mono" rows="16"></textarea>
+      </div>
+
+      <div class="mt-3 d-flex align-items-center gap-2 flex-wrap">
+        <button id="runBtn" class="btn btn-primary">Запустить анализ</button>
+        <span id="status" class="hint"></span>
+      </div>
+      <div class="hint mt-2">Подсказка: у всех активов должно быть одинаковое количество цен.</div>
+    </aside>
+
+    <main class="results glass">
+      <h2 class="section-title">Результаты</h2>
+
+      <div class="stats-grid">
+        <div class="metric-card">
+          <h3>Портфель max Sharpe</h3>
+          <pre id="maxSharpe" class="mono result-text">Выполните расчет для отображения данных</pre>
+        </div>
+        <div class="metric-card">
+          <h3>Средняя доходность активов</h3>
+          <pre id="meanReturns" class="mono result-text">Выполните расчет для отображения данных</pre>
+        </div>
+
+      </div>
+
+      <div class="chart-block">
+        <div class="chart-title">Эффективная граница</div>
+        <div class="chart p-2" id="chartFrontier"></div>
+      </div>
+
+      <div class="chart-block">
+        <div class="chart-title">Monte Carlo</div>
+        <div class="chart p-2" id="chartMonteCarlo"></div>
+      </div>
+
+      <div class="chart-block">
+        <div class="chart-title">Корреляции активов</div>
+        <div class="chart p-2" id="chartCorrelation"></div>
+      </div>
+
+      <div class="metric-card mb-0">
+        <h3>Рекомендации по ребалансировке (ситуационные)</h3>
+        <pre id="rebalancingTips" class="mono tips-text">Выполните расчет для отображения рекомендаций</pre>
+      </div>
+      <div class="metric-card mt-3">
+        <h3>Оценка портфеля</h3>
+        <div id="portfolioScore" class="result-text">Выполните расчет для оценки качества текущего портфеля.</div>
+      </div>
+    </main>
+  </section>
+</div>
+
+<script>
+  const THEME_KEY = "portfolio_dashboard_theme";
+  let lastChartPayload = null;
+  let assetRowId = 0;
+
+  const defaultPayload = {
+    prices: {
+      SBER: [281.4, 283.6, 286.1, 285.2, 287.0, 290.5, 289.7, 292.3],
+      GAZP: [168.2, 169.0, 170.4, 169.9, 171.5, 172.1, 171.3, 173.0],
+      LKOH: [7345, 7390, 7445, 7410, 7480, 7520, 7490, 7560]
+    },
+    dates: ["2026-01-01", "2026-01-02", "2026-01-03", "2026-01-04", "2026-01-05", "2026-01-06", "2026-01-07", "2026-01-08"],
+    n_portfolios: 1500,
+    frontier_points: 25,
+    dashboard_sample_limit: 400,
+    risk_free_rate: 0.17};
+
+  const ruSample = {
+    prices: {
+      SBER: [281.4, 283.6, 286.1, 285.2, 287.0, 290.5, 289.7, 292.3],
+      GAZP: [168.2, 169.0, 170.4, 169.9, 171.5, 172.1, 171.3, 173.0],
+      LKOH: [7345, 7390, 7445, 7410, 7480, 7520, 7490, 7560]
+    },
+    startDate: "2026-01-01"
+  };
+
+  const payloadEl = document.getElementById("payload");
+  const statusEl = document.getElementById("status");
+  const themeBtn = document.getElementById("themeBtn");
+  const manualSection = document.getElementById("manualSection");
+  const jsonSection = document.getElementById("jsonSection");
+  const assetRowsEl = document.getElementById("assetRows");
+  const rebalancingTipsEl = document.getElementById("rebalancingTips");
+  const portfolioScoreEl = document.getElementById("portfolioScore");
+  payloadEl.value = JSON.stringify(defaultPayload, null, 2);
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    return parts.length === 2 ? parts.pop().split(';').shift() : "";
+  }
+
+  function currentTheme() {
+    return document.documentElement.getAttribute("data-theme") || "light";
+  }
+
+  function updateThemeButton() {
+    themeBtn.textContent = currentTheme() === "dark" ? "Светлая тема" : "Темная тема";
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    document.documentElement.setAttribute("data-bs-theme", theme);
+    localStorage.setItem(THEME_KEY, theme);
+    updateThemeButton();
+    if (lastChartPayload) renderCharts(lastChartPayload);
+  }
+
+  function chartThemeLayout(figure) {
+    const themed = JSON.parse(JSON.stringify(figure));
+    themed.layout = themed.layout || {};
+
+    const dark = currentTheme() === "dark";
+    const fontColor = dark ? "#e5e7eb" : "#1f2937";
+    const bgColor = dark ? "#111827" : "#ffffff";
+    const gridColor = dark ? "#334155" : "#e2e8f0";
+
+    themed.layout.paper_bgcolor = bgColor;
+    themed.layout.plot_bgcolor = bgColor;
+    themed.layout.font = Object.assign({}, themed.layout.font || {}, { color: fontColor });
+
+    if (themed.layout.xaxis) themed.layout.xaxis = Object.assign({}, themed.layout.xaxis, { gridcolor: gridColor, zerolinecolor: gridColor });
+    if (themed.layout.yaxis) themed.layout.yaxis = Object.assign({}, themed.layout.yaxis, { gridcolor: gridColor, zerolinecolor: gridColor });
+
+    return themed;
+  }
+
+  function drawChart(elementId, figure) {
+    const themedFigure = chartThemeLayout(figure);
+    if (elementId === "chartMonteCarlo" || elementId === "chartFrontier") {
+      themedFigure.layout = themedFigure.layout || {};
+      themedFigure.layout.legend = Object.assign({}, themedFigure.layout.legend || {}, {
+        orientation: "h",
+        yanchor: "bottom",
+        y: 1.02,
+        xanchor: "left",
+        x: 0
+      });
+    }
+    themedFigure.layout = themedFigure.layout || {};
+    themedFigure.layout.title = null;
+    Plotly.newPlot(elementId, themedFigure.data, themedFigure.layout, { responsive: true, displaylogo: false });
+  }
+
+  function renderCharts(charts) {
+    drawChart("chartFrontier", charts.efficient_frontier);
+    drawChart("chartMonteCarlo", charts.monte_carlo);
+    drawChart("chartCorrelation", charts.correlation_heatmap);
+  }
+
+  function parseNumberList(text) {
+    return text.split(",").map(x => x.trim()).filter(Boolean).map(v => Number(v));
+  }
+
+  function createAssetRow(ticker = "", prices = "") {
+    assetRowId += 1;
+    const row = document.createElement("div");
+    row.className = "asset-row";
+    row.dataset.rowId = String(assetRowId);
+    row.innerHTML = `
+      <div class="row g-2 align-items-end">
+        <div class="col-12 col-lg-3">
+          <label class="form-label">Тикер</label>
+          <input class="form-control ticker-input" placeholder="SBER" value="${ticker}" />
+        </div>
+        <div class="col-12 col-lg-8">
+          <label class="form-label price-label">Цена закрытия (через запятую)</label>
+          <input class="form-control mono prices-input" placeholder="281.4, 283.6, 286.1" value="${prices}" />
+        </div>
+        <div class="col-12 col-lg-1 d-grid">
+          <button type="button" class="btn btn-outline-danger remove-asset-btn">x</button>
+        </div>
+      </div>
+    `;
+
+    row.querySelector(".remove-asset-btn").addEventListener("click", () => {
+      row.remove();
+      if (!assetRowsEl.children.length) createAssetRow();
+      updatePriceLabels();
+    });
+
+    assetRowsEl.appendChild(row);
+    updatePriceLabels();
+  }
+
+  function updatePriceLabels() {
+    const labels = [...assetRowsEl.querySelectorAll(".price-label")];
+    labels.forEach((label, index) => {
+      label.textContent = index === 0
+        ? "Цены закрытия в RUB (через запятую)"
+        : "Цена закрытия (через запятую)";
+    });
+  }
+
+  function formatDateYYYYMMDD(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  function generateDatesFromStart(startDateStr, length) {
+    if (!startDateStr) throw new Error("Укажите дату начала ряда для автогенерации дат");
+    const start = new Date(startDateStr + "T00:00:00");
+    if (Number.isNaN(start.getTime())) throw new Error("Некорректная дата начала ряда");
+
+    const dates = [];
+    for (let i = 0; i < length; i += 1) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      dates.push(formatDateYYYYMMDD(d));
+    }
+    return dates;
+  }
+
+  function setManualFromPayload(payload) {
+    assetRowsEl.innerHTML = "";
+    const prices = payload.prices || {};
+    const tickers = Object.keys(prices);
+
+    if (!tickers.length) createAssetRow();
+    else tickers.forEach(t => createAssetRow(t, (prices[t] || []).join(", ")));
+
+    document.getElementById("riskFreeRate").value = payload.risk_free_rate ?? 0.17;
+    document.getElementById("nPortfolios").value = payload.n_portfolios ?? 1500;
+    document.getElementById("frontierPoints").value = payload.frontier_points ?? 25;
+    document.getElementById("sampleLimit").value = payload.dashboard_sample_limit ?? 400;
+
+    const startDate = Array.isArray(payload.dates) && payload.dates.length ? payload.dates[0] : "2026-01-01";
+    document.getElementById("startDate").value = startDate;
+    document.getElementById("autoDates").checked = true;
+  }
+
+  function buildPayloadFromManual() {
+    const prices = {};
+    let expectedLength = null;
+
+    const rows = [...assetRowsEl.querySelectorAll(".asset-row")];
+    if (!rows.length) throw new Error("Добавьте хотя бы один актив");
+
+    for (const row of rows) {
+      const ticker = row.querySelector(".ticker-input").value.trim().toUpperCase();
+      const pricesRaw = row.querySelector(".prices-input").value.trim();
+
+      if (!ticker) continue;
+      if (!pricesRaw) throw new Error(`Укажите цены для актива ${ticker}`);
+
+      const values = parseNumberList(pricesRaw);
+      if (values.some(v => Number.isNaN(v))) throw new Error(`Некорректные цены у актива ${ticker}`);
+      if (values.length < 2) throw new Error(`Для ${ticker} нужно минимум 2 цены`);
+
+      if (expectedLength === null) expectedLength = values.length;
+      if (expectedLength !== values.length) throw new Error(`У всех активов должно быть одинаковое число цен. ${ticker}: ${values.length}, ожидалось: ${expectedLength}`);
+
+      prices[ticker] = values;
+    }
+
+    const tickers = Object.keys(prices);
+    if (!tickers.length) throw new Error("Не заполнены активы");
+
+    const payload = {
+      prices,
+      risk_free_rate: Number(document.getElementById("riskFreeRate").value || 0.17),
+      n_portfolios: Number(document.getElementById("nPortfolios").value || 1500),
+      frontier_points: Number(document.getElementById("frontierPoints").value || 25),
+      dashboard_sample_limit: Number(document.getElementById("sampleLimit").value || 400)};
+
+    if (document.getElementById("autoDates").checked) {
+      payload.dates = generateDatesFromStart(document.getElementById("startDate").value, expectedLength);
+    }
+
+    return payload;
+  }
+
+  function currentInputMode() {
+    return document.querySelector("input[name='inputMode']:checked").value;
+  }
+
+  function switchInputMode() {
+    const mode = currentInputMode();
+    manualSection.classList.toggle("hidden", mode !== "manual");
+    jsonSection.classList.toggle("hidden", mode !== "json");
+  }
+
+  function payloadFromCurrentMode() {
+    if (currentInputMode() === "json") return JSON.parse(payloadEl.value);
+    return buildPayloadFromManual();
+  }
+
+  function formatPercent(value) {
+    return `${(Number(value) * 100).toFixed(2)}%`;
+  }
+
+  function renderMaxSharpeText(maxSharpe) {
+    const lines = [
+      `Ожидаемая доходность: ${formatPercent(maxSharpe.expected_return)}`,
+      `Волатильность: ${formatPercent(maxSharpe.volatility)}`,
+      `Коэффициент Sharpe: ${Number(maxSharpe.sharpe_ratio).toFixed(3)}`,
+      "",
+      "Веса активов:"
+    ];
+
+    for (const [ticker, weight] of Object.entries(maxSharpe.weights || {})) {
+      lines.push(`- ${ticker}: ${formatPercent(weight)}`);
+    }
+    return lines.join("\n");
+  }
+
+  function renderMeanReturnsText(meanReturns) {
+    const lines = ["Среднегодовая доходность по активам:"];
+    for (const [ticker, value] of Object.entries(meanReturns || {})) {
+      lines.push(`- ${ticker}: ${formatPercent(value)}`);
+    }
+    return lines.join("\n");
+  }
+
+
+  function blendWeights(weightsA, weightsB, alpha = 0.5) {
+    const keys = new Set([...Object.keys(weightsA || {}), ...Object.keys(weightsB || {})]);
+    const blended = {};
+    keys.forEach(k => {
+      blended[k] = alpha * Number(weightsA?.[k] || 0) + (1 - alpha) * Number(weightsB?.[k] || 0);
+    });
+    return blended;
+  }
+
+  function weightsToLines(weights) {
+    return Object.entries(weights || {})
+      .sort((a, b) => b[1] - a[1])
+      .map(([ticker, weight]) => `- ${ticker}: ${formatPercent(weight)}`)
+      .join("\n");
+  }
+
+  function renderRebalancingRecommendations(optimization) {
+    const minVol = optimization?.min_volatility || {};
+    const maxSharpe = optimization?.max_sharpe || {};
+    const balanced = blendWeights(minVol.weights || {}, maxSharpe.weights || {}, 0.5);
+
+    const lines = [];
+    lines.push("1) Консервативный сценарий (при росте неопределенности)");
+    lines.push("Целевой профиль: портфель минимальной волатильности.");
+    lines.push(weightsToLines(minVol.weights || {}));
+    lines.push("");
+
+    lines.push("2) Сбалансированный сценарий (нейтральный рынок)");
+    lines.push("Целевой профиль: 50/50 между min-vol и max-Sharpe.");
+    lines.push(weightsToLines(balanced));
+    lines.push("");
+
+    lines.push("3) Агрессивный сценарий (ставка на доходность)");
+    lines.push("Целевой профиль: портфель максимального Sharpe.");
+    lines.push(weightsToLines(maxSharpe.weights || {}));
+    lines.push("");
+
+    lines.push("4) Триггеры ребалансировки");
+    lines.push("- Пересмотр портфеля, если отклонение фактического веса от целевого > 5 п.п.");
+    lines.push("- Плановый ребаланс 1 раз в месяц или после резких движений рынка.");
+    lines.push("- При росте волатильности: смещать структуру в сторону min-vol.");
+
+    return lines.join("\n");
+  }
+
+
+  function getScoreClass(score) {
+    if (score <= 4) return "score-red";
+    if (score <= 7) return "score-yellow";
+    return "score-green";
+  }
+
+  function renderPortfolioScore(optimization) {
+    const maxSharpe = optimization?.max_sharpe || {};
+    const weights = maxSharpe.weights || {};
+    const sharpe = Number(maxSharpe.sharpe_ratio || 0);
+    const volatility = Number(maxSharpe.volatility || 0);
+
+    const sharpeScore = Math.max(0, Math.min(3, sharpe)) / 3 * 5;
+
+    let riskScore = 0;
+    if (volatility <= 0.15) riskScore = 3;
+    else if (volatility <= 0.25) riskScore = 2;
+    else if (volatility <= 0.35) riskScore = 1;
+
+    const diversifiedCount = Object.values(weights).filter(w => Number(w) >= 0.05).length;
+    const diversificationScore = Math.min(5, diversifiedCount) / 5 * 2;
+
+    const score = Math.max(0, Math.min(10, sharpeScore + riskScore + diversificationScore));
+    const scoreClass = getScoreClass(score);
+
+    const rationale = [
+      `Sharpe-вклад: ${sharpeScore.toFixed(2)} / 5 (Sharpe=${sharpe.toFixed(3)})`,
+      `Риск-вклад: ${riskScore.toFixed(2)} / 3 (волатильность=${(volatility*100).toFixed(2)}%)`,
+      `Диверсификация: ${diversificationScore.toFixed(2)} / 2 (активов с весом >= 5%: ${diversifiedCount})`
+    ];
+
+    portfolioScoreEl.innerHTML = `
+      <div class="score-chip ${scoreClass}">Оценка портфеля: ${score.toFixed(1)} / 10</div>
+      <div>${rationale.join("<br>")}</div>
+    `;
+  }
+  async function runAnalysis() {
+    statusEl.textContent = "Выполняется расчет...";
+    try {
+      const payload = payloadFromCurrentMode();
+      const response = await fetch("/api/portfolio/dashboard/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message || `HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      document.getElementById("maxSharpe").textContent = renderMaxSharpeText(data.optimization.max_sharpe);
+      document.getElementById("meanReturns").textContent = renderMeanReturnsText(data.summary.mean_returns);
+      rebalancingTipsEl.textContent = renderRebalancingRecommendations(data.optimization);
+      renderPortfolioScore(data.optimization);
+
+      lastChartPayload = data.charts;
+      renderCharts(lastChartPayload);
+      statusEl.textContent = "Готово";
+      payloadEl.value = JSON.stringify(payload, null, 2);
+    } catch (error) {
+      statusEl.textContent = "Ошибка";
+      alert(`Не удалось выполнить анализ: ${error.message}`);
+    }
+  }
+
+  function applyRuSample() {
+    setManualFromPayload({
+      prices: ruSample.prices,
+      dates: generateDatesFromStart(ruSample.startDate, Object.values(ruSample.prices)[0].length),
+      risk_free_rate: 0.17,
+      n_portfolios: 1500,
+      frontier_points: 25,
+      dashboard_sample_limit: 400});
+    statusEl.textContent = "Загружен шаблон российских акций";
+  }
+
+  themeBtn.addEventListener("click", () => {
+    applyTheme(currentTheme() === "dark" ? "light" : "dark");
+  });
+
+  document.getElementById("addAssetBtn").addEventListener("click", () => createAssetRow());
+  document.getElementById("fillRuSampleBtn").addEventListener("click", applyRuSample);
+  document.getElementById("toJsonBtn").addEventListener("click", () => {
+    try {
+      const payload = buildPayloadFromManual();
+      payloadEl.value = JSON.stringify(payload, null, 2);
+      document.getElementById("modeJson").checked = true;
+      switchInputMode();
+      statusEl.textContent = "Ручной ввод преобразован в JSON";
+    } catch (error) {
+      alert(`Не удалось преобразовать: ${error.message}`);
+    }
+  });
+
+  document.querySelectorAll("input[name='inputMode']").forEach(el => {
+    el.addEventListener("change", switchInputMode);
+  });
+
+  const savedTheme = localStorage.getItem(THEME_KEY);
+  applyTheme(savedTheme === "dark" ? "dark" : "light");
+
+  setManualFromPayload(defaultPayload);
+  switchInputMode();
+  document.getElementById("runBtn").addEventListener("click", runAnalysis);
+  runAnalysis();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
