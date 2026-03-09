@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ru" data-theme="light" data-bs-theme="light">
 <head>
   <meta charset="utf-8" />
@@ -11,35 +11,35 @@
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <style>
     :root {
-      --page-bg: #f1f5f9;
-      --panel-bg: rgba(255, 255, 255, 0.76);
+      --page-bg: #05070b;
+      --panel-bg: rgba(12, 16, 24, 0.86);
+      --panel-border: rgba(88, 106, 134, 0.34);
+      --text-color: #e6edf7;
+      --muted-color: #9fb0c7;
+      --accent: #2ee6a6;
+      --accent-soft: rgba(46, 230, 166, 0.16);
+      --danger-soft: rgba(248, 113, 113, 0.20);
+      --shadow: 0 22px 60px rgba(0, 0, 0, 0.45);
+      --chart-bg: #0d1320;
+    }
+
+    html[data-theme="light"] {
+      --page-bg: #f3f7ff;
+      --panel-bg: rgba(255, 255, 255, 0.88);
       --panel-border: rgba(148, 163, 184, 0.35);
       --text-color: #0f172a;
       --muted-color: #475569;
-      --accent: #0f766e;
-      --accent-soft: #99f6e4;
-      --danger-soft: #fecaca;
+      --accent: #0ea5a1;
+      --accent-soft: rgba(45, 212, 191, 0.20);
+      --danger-soft: rgba(254, 202, 202, 0.48);
       --shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
       --chart-bg: #ffffff;
     }
 
-    html[data-theme="dark"] {
-      --page-bg: #0b1220;
-      --panel-bg: rgba(15, 23, 42, 0.78);
-      --panel-border: rgba(71, 85, 105, 0.45);
-      --text-color: #e2e8f0;
-      --muted-color: #94a3b8;
-      --accent: #2dd4bf;
-      --accent-soft: rgba(45, 212, 191, 0.18);
-      --danger-soft: rgba(248, 113, 113, 0.22);
-      --shadow: 0 22px 50px rgba(2, 6, 23, 0.55);
-      --chart-bg: #111827;
-    }
-
     body {
       background:
-        radial-gradient(900px 500px at 0% 0%, rgba(45, 212, 191, 0.2), transparent 65%),
-        radial-gradient(900px 500px at 100% 100%, rgba(14, 165, 233, 0.16), transparent 60%),
+        radial-gradient(900px 500px at 0% 0%, rgba(46, 230, 166, 0.18), transparent 65%),
+        radial-gradient(900px 500px at 100% 100%, rgba(101, 176, 255, 0.14), transparent 60%),
         var(--page-bg);
       color: var(--text-color);
       min-height: 100vh;
@@ -68,6 +68,7 @@
     .hero p { margin: 8px 0 0; color: var(--muted-color); font-size: 0.95rem; }
 
     .pill {
+      letter-spacing: 0.02em;
       border-radius: 999px;
       padding: 8px 12px;
       border: 1px solid var(--panel-border);
@@ -154,12 +155,25 @@
     .score-yellow { background: #fef3c7; color: #92400e; }
     .score-green { background: #dcfce7; color: #166534; }
 
-    .chart-block { border: 1px solid var(--panel-border); border-radius: 14px; padding: 10px; margin-bottom: 12px; background: color-mix(in srgb, var(--panel-bg) 94%, transparent); }
+    .chart-block { border: 1px solid var(--panel-border); border-radius: 14px; padding: 10px; margin-bottom: 12px; background: color-mix(in srgb, var(--panel-bg) 94%, transparent); min-width: 0; overflow: hidden; }
     .chart-title { margin: 0 0 8px; font-size: 0.95rem; font-family: "Inter", sans-serif; font-weight: 700; }
-    .chart { height: 360px; border: 1px solid var(--panel-border); border-radius: 10px; background: var(--chart-bg); }
+    .chart { height: 360px; border: 1px solid var(--panel-border); border-radius: 10px; background: var(--chart-bg); overflow: hidden; position: relative; min-width: 0; }
 
-    .btn-primary { background: var(--accent); border-color: var(--accent); font-weight: 600; }
-    .btn-primary:hover { filter: brightness(0.95); border-color: var(--accent); background: var(--accent); }
+    .chart .js-plotly-plot,
+    .chart .plot-container,
+    .chart .svg-container {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .chart .modebar {
+      right: 6px !important;
+      top: 6px !important;
+    }
+
+    .btn-primary { background: linear-gradient(135deg, var(--accent), #23b9ff); border-color: transparent; font-weight: 700; color: #041015; }
+    .btn-primary:focus { box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent) 30%, transparent); }
+    .btn-primary:hover { filter: brightness(1.05); border-color: transparent; }
 
     .btn-outline-danger {
       border-color: color-mix(in srgb, #ef4444 45%, var(--panel-border));
@@ -282,17 +296,17 @@
 
       <div class="chart-block">
         <div class="chart-title">Эффективная граница</div>
-        <div class="chart p-2" id="chartFrontier"></div>
+        <div class="chart" id="chartFrontier"></div>
       </div>
 
       <div class="chart-block">
         <div class="chart-title">Monte Carlo</div>
-        <div class="chart p-2" id="chartMonteCarlo"></div>
+        <div class="chart" id="chartMonteCarlo"></div>
       </div>
 
       <div class="chart-block">
         <div class="chart-title">Корреляции активов</div>
-        <div class="chart p-2" id="chartCorrelation"></div>
+        <div class="chart" id="chartCorrelation"></div>
       </div>
 
       <div class="metric-card mb-0">
@@ -371,21 +385,81 @@
 
     const dark = currentTheme() === "dark";
     const fontColor = dark ? "#e5e7eb" : "#1f2937";
-    const bgColor = dark ? "#111827" : "#ffffff";
-    const gridColor = dark ? "#334155" : "#e2e8f0";
+    const bgColor = dark ? "#0f172a" : "#ffffff";
+    const gridColor = dark ? "rgba(148,163,184,0.14)" : "rgba(100,116,139,0.18)";
+    const axisLineColor = dark ? "rgba(148,163,184,0.35)" : "rgba(100,116,139,0.35)";
+    const hoverBg = dark ? "#0b1220" : "#ffffff";
 
     themed.layout.paper_bgcolor = bgColor;
     themed.layout.plot_bgcolor = bgColor;
     themed.layout.font = Object.assign({}, themed.layout.font || {}, { color: fontColor });
+    themed.layout.colorway = dark
+      ? ["#2ee6a6", "#65b0ff", "#f59e0b", "#f472b6", "#22d3ee"]
+      : ["#0ea5a1", "#2563eb", "#d97706", "#db2777", "#0891b2"];
+    themed.layout.margin = Object.assign({}, themed.layout.margin || {}, { l: 12, r: 12, t: 18, b: 34, pad: 0 });
+    themed.layout.hoverlabel = Object.assign(
+      {
+        bgcolor: hoverBg,
+        bordercolor: dark ? "rgba(148,163,184,0.35)" : "rgba(100,116,139,0.25)",
+        font: { color: fontColor, size: 12 },
+      },
+      themed.layout.hoverlabel || {},
+    );
 
-    if (themed.layout.xaxis) themed.layout.xaxis = Object.assign({}, themed.layout.xaxis, { gridcolor: gridColor, zerolinecolor: gridColor });
-    if (themed.layout.yaxis) themed.layout.yaxis = Object.assign({}, themed.layout.yaxis, { gridcolor: gridColor, zerolinecolor: gridColor });
+    if (themed.layout.xaxis) {
+      themed.layout.xaxis = Object.assign({}, themed.layout.xaxis, {
+        automargin: true,
+        showline: true,
+        linewidth: 1,
+        linecolor: axisLineColor,
+        gridcolor: gridColor,
+        zeroline: false,
+        ticks: "outside",
+      });
+    }
+    if (themed.layout.yaxis) {
+      themed.layout.yaxis = Object.assign({}, themed.layout.yaxis, {
+        automargin: true,
+        showline: true,
+        linewidth: 1,
+        linecolor: axisLineColor,
+        gridcolor: gridColor,
+        zeroline: false,
+        ticks: "outside",
+      });
+    }
 
     return themed;
   }
 
   function drawChart(elementId, figure) {
     const themedFigure = chartThemeLayout(figure);
+    const dark = currentTheme() === "dark";
+
+    themedFigure.data = (themedFigure.data || []).map((trace) => {
+      const updated = { ...trace };
+
+      if (updated.type === "scatter") {
+        updated.hovertemplate = updated.hovertemplate || "%{y:.4f}<extra>%{fullData.name}</extra>";
+        updated.line = Object.assign({ width: 2.4, shape: "spline", smoothing: 0.85 }, updated.line || {});
+        updated.marker = Object.assign(
+          {
+            size: 8,
+            opacity: 0.82,
+            line: { width: 1.2, color: dark ? "rgba(15,23,42,0.55)" : "rgba(255,255,255,0.7)" },
+          },
+          updated.marker || {},
+        );
+      }
+
+      if (updated.type === "heatmap") {
+        updated.zsmooth = "best";
+        updated.hovertemplate = updated.hovertemplate || "x=%{x}<br>y=%{y}<br>corr=%{z:.3f}<extra></extra>";
+      }
+
+      return updated;
+    });
+
     if (elementId === "chartMonteCarlo" || elementId === "chartFrontier") {
       themedFigure.layout = themedFigure.layout || {};
       themedFigure.layout.legend = Object.assign({}, themedFigure.layout.legend || {}, {
@@ -398,7 +472,13 @@
     }
     themedFigure.layout = themedFigure.layout || {};
     themedFigure.layout.title = null;
-    Plotly.newPlot(elementId, themedFigure.data, themedFigure.layout, { responsive: true, displaylogo: false });
+    Plotly.newPlot(elementId, themedFigure.data, themedFigure.layout, {
+      responsive: true,
+      displaylogo: false,
+      scrollZoom: false,
+      doubleClick: "reset",
+      modeBarButtonsToRemove: ["lasso2d", "select2d", "autoScale2d", "toggleSpikelines"],
+    });
   }
 
   function renderCharts(charts) {
@@ -724,7 +804,7 @@
   });
 
   const savedTheme = localStorage.getItem(THEME_KEY);
-  applyTheme(savedTheme === "dark" ? "dark" : "light");
+  applyTheme(savedTheme === "light" ? "light" : "dark");
 
   setManualFromPayload(defaultPayload);
   switchInputMode();
@@ -733,6 +813,13 @@
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
 
 
 
