@@ -1,5 +1,6 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -8,9 +9,21 @@ SRC_DIR = BASE_DIR / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-SECRET_KEY = "django-insecure-change-me"
-DEBUG = True
-ALLOWED_HOSTS: list[str] = []
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-change-me")
+DEBUG = os.environ.get("DEBUG", "1") == "1"
+
+ALLOWED_HOSTS: list[str] = [
+    "127.0.0.1",
+    "localhost",
+    ".vercel.app",
+]
+extra_allowed_hosts = os.environ.get("ALLOWED_HOSTS", "")
+if extra_allowed_hosts:
+    ALLOWED_HOSTS.extend([host.strip() for host in extra_allowed_hosts.split(",") if host.strip()])
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.vercel.app",
+]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -60,6 +73,10 @@ DATABASES = {
     }
 }
 
+if os.environ.get("VERCEL") == "1":
+    DATABASES["default"]["NAME"] = "/tmp/db.sqlite3"
+    SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -72,5 +89,5 @@ TIME_ZONE = "Europe/Moscow"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

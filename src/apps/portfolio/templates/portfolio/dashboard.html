@@ -1135,6 +1135,8 @@
       const div = Number(data.summary?.diversification_score || 0);
       const weights = Object.values(cur.weights || {}).map((v) => Number(v || 0));
       const maxWeight = weights.length ? Math.max(...weights) : 1;
+      const nAssets = Math.max(weights.length, 1);
+      const equalWeight = 1 / nAssets;
 
       const sharpePart = Math.max(0, Math.min(1, (sharpe + 1.0) / 3.0)) * 2.5;
       const returnPart = Math.max(0, Math.min(1, (expRet + 0.15) / 0.45)) * 1.5;
@@ -1142,10 +1144,8 @@
       const ddPart = Math.max(0, Math.min(1, (0.45 - maxDD) / 0.45)) * 2;
       const divPart = Math.max(0, Math.min(1, div)) * 2;
 
-      let concentrationPenalty = 0;
-      if (maxWeight > 0.55) concentrationPenalty = 1.8;
-      else if (maxWeight > 0.45) concentrationPenalty = 1.2;
-      else if (maxWeight > 0.35) concentrationPenalty = 0.6;
+      const concentrationRatio = Math.max(0, (maxWeight - equalWeight) / (1 - equalWeight));
+      const concentrationPenalty = concentrationRatio * 2.0;
 
       const score = Math.max(0, Math.min(10, sharpePart + returnPart + volPart + ddPart + divPart - concentrationPenalty));
 
@@ -1164,7 +1164,7 @@
 
     function renderScore(data) {
       const result = computePortfolioScore(data);
-      document.getElementById("scoreBadge").textContent = `Оценка: ${result.score.toFixed(1)} / 10`;
+      document.getElementById("scoreBadge").textContent = `Оценка: ${result.score.toFixed(2)} / 10`;
       document.getElementById("scoreText").textContent = result.lines.join("\n");
     }
 
