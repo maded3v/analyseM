@@ -11,3 +11,7 @@ def home_redirect(_request):
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class DashboardPageView(TemplateView):
     template_name = "portfolio/dashboard.html"
+
+
+class HowItWorksPageView(TemplateView):
+    template_name = "portfolio/how_it_works.html"

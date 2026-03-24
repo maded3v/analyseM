@@ -1,0 +1,91 @@
+Watching for file changes with StatReloader
+[25/Mar/2026 02:13:59] "GET /dashboard/ HTTP/1.1" 200 44499
+[25/Mar/2026 02:13:59] "GET /dashboard/ HTTP/1.1" 200 44499
+[25/Mar/2026 02:14:09] "GET /dashboard/ HTTP/1.1" 200 44499
+Not Found: /favicon.ico
+[25/Mar/2026 02:14:09] "GET /favicon.ico HTTP/1.1" 404 2894
+[25/Mar/2026 02:14:10] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 629001
+[25/Mar/2026 02:14:23] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 628862
+[25/Mar/2026 02:14:58] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 553109
+[25/Mar/2026 02:15:07] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 553109
+[25/Mar/2026 02:15:13] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 553104
+[25/Mar/2026 02:15:14] "GET /dashboard/ HTTP/1.1" 200 44499
+[25/Mar/2026 02:15:14] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 628913
+[25/Mar/2026 02:15:14,661] - Broken pipe from ('127.0.0.1', 54246)
+[25/Mar/2026 02:15:17] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 628911
+[25/Mar/2026 02:16:33] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 629487
+[25/Mar/2026 02:16:37] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 628114
+[25/Mar/2026 02:18:25] "GET /dashboard/ HTTP/1.1" 200 46874
+[25/Mar/2026 02:18:25] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 628770
+[25/Mar/2026 02:18:28] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 629137
+[25/Mar/2026 02:18:33] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 628973
+[25/Mar/2026 02:18:39] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 628986
+[25/Mar/2026 02:18:43] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 629144
+[25/Mar/2026 02:19:18] "GET /api/portfolio/moex/history/?secid=SBER&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5120
+[25/Mar/2026 02:19:22] "GET /api/portfolio/moex/history/?secid=GAZP&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5126
+[25/Mar/2026 02:19:25] "GET /api/portfolio/moex/history/?secid=LKOH&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5171
+[25/Mar/2026 02:19:26] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 629051
+[25/Mar/2026 02:19:29] "GET /api/portfolio/moex/history/?secid=YDEX&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5171
+[25/Mar/2026 02:19:31] "GET /api/portfolio/moex/history/?secid=ROSN&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5038
+[25/Mar/2026 02:19:34] "GET /api/portfolio/moex/history/?secid=NVTK&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5171
+[25/Mar/2026 02:19:39] "GET /api/portfolio/moex/history/?secid=TATN&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 4918
+[25/Mar/2026 02:19:42] "GET /api/portfolio/moex/history/?secid=GMKN&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5086
+[25/Mar/2026 02:19:44] "GET /api/portfolio/moex/history/?secid=MAGN&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5007
+[25/Mar/2026 02:19:56] "GET /dashboard/ HTTP/1.1" 200 47633
+[25/Mar/2026 02:19:56] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 628894
+[25/Mar/2026 02:19:59] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 628914
+[25/Mar/2026 02:21:09] "GET /dashboard/ HTTP/1.1" 200 47325
+[25/Mar/2026 02:21:09] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 515035
+[25/Mar/2026 02:21:18] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 628993
+[25/Mar/2026 02:21:44] "GET /api/portfolio/moex/history/?secid=GAZP&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5126
+[25/Mar/2026 02:21:46] "GET /api/portfolio/moex/history/?secid=MAGN&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5007
+[25/Mar/2026 02:21:47] "GET /api/portfolio/moex/history/?secid=GMKN&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5086
+[25/Mar/2026 02:21:49] "GET /api/portfolio/moex/history/?secid=ROSN&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5038
+[25/Mar/2026 02:21:51] "GET /api/portfolio/moex/history/?secid=TATN&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 4918
+[25/Mar/2026 02:21:53] "GET /api/portfolio/moex/history/?secid=NVTK&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5171
+[25/Mar/2026 02:21:55] "GET /api/portfolio/moex/history/?secid=SBER&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5120
+[25/Mar/2026 02:21:57] "GET /api/portfolio/moex/history/?secid=LKOH&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5171
+[25/Mar/2026 02:21:58] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 628847
+[25/Mar/2026 02:21:59] "GET /api/portfolio/moex/history/?secid=YDEX&from=2025-03-25&till=2026-03-25 HTTP/1.1" 200 5171
+[25/Mar/2026 02:27:39] "GET /dashboard/ HTTP/1.1" 200 46644
+[25/Mar/2026 02:27:39] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 515074
+[25/Mar/2026 02:28:15] "GET /dashboard/ HTTP/1.1" 200 46693
+[25/Mar/2026 02:28:46] "GET /dashboard/ HTTP/1.1" 200 46693
+[25/Mar/2026 02:28:47] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 515159
+Not Found: /favicon.ico
+[25/Mar/2026 02:28:47] "GET /favicon.ico HTTP/1.1" 404 2894
+[25/Mar/2026 02:31:38] "GET /dashboard/ HTTP/1.1" 200 46991
+[25/Mar/2026 02:32:10] "GET /dashboard/ HTTP/1.1" 200 46991
+Not Found: /favicon.ico
+[25/Mar/2026 02:32:11] "GET /favicon.ico HTTP/1.1" 404 2894
+[25/Mar/2026 02:32:11] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 515194
+[25/Mar/2026 02:32:42] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 515245
+[25/Mar/2026 02:34:18] "GET /dashboard/ HTTP/1.1" 200 46991
+[25/Mar/2026 02:34:18] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 515167
+[25/Mar/2026 02:34:39] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 515082
+[25/Mar/2026 02:34:42] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 515138
+[25/Mar/2026 02:34:45] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 515208
+[25/Mar/2026 02:35:49] "GET /dashboard/ HTTP/1.1" 200 47070
+Not Found: /favicon.ico
+[25/Mar/2026 02:35:51] "GET /favicon.ico HTTP/1.1" 404 2894
+[25/Mar/2026 02:35:51] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 515255
+[25/Mar/2026 02:37:50] "GET /dashboard/ HTTP/1.1" 200 47297
+Not Found: /favicon.ico
+[25/Mar/2026 02:37:50] "GET /favicon.ico HTTP/1.1" 404 2894
+[25/Mar/2026 02:37:51] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 515231
+[25/Mar/2026 02:38:29] "GET /dashboard/ HTTP/1.1" 200 47297
+Not Found: /favicon.ico
+[25/Mar/2026 02:38:29] "GET /favicon.ico HTTP/1.1" 404 2894
+[25/Mar/2026 02:38:29] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 515121
+[25/Mar/2026 02:40:36] "GET /dashboard/ HTTP/1.1" 200 48445
+Not Found: /favicon.ico
+[25/Mar/2026 02:40:38] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 515312
+[25/Mar/2026 02:40:38] "GET /favicon.ico HTTP/1.1" 404 2894
+[25/Mar/2026 02:42:08] "GET /dashboard/ HTTP/1.1" 200 48583
+Not Found: /favicon.ico
+[25/Mar/2026 02:42:09] "GET /favicon.ico HTTP/1.1" 404 2894
+[25/Mar/2026 02:42:09] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 515231
+[25/Mar/2026 02:42:44] "GET /dashboard/ HTTP/1.1" 200 48484
+Not Found: /favicon.ico
+[25/Mar/2026 02:42:45] "GET /favicon.ico HTTP/1.1" 404 2894
+[25/Mar/2026 02:42:45] "POST /api/portfolio/dashboard/ HTTP/1.1" 200 515255

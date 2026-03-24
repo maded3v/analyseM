@@ -9,12 +9,18 @@ from .markowitz import (
     maximize_sharpe,
     minimize_volatility,
 )
-from .monte_carlo import MonteCarloResult, simulate_random_portfolios
+from .monte_carlo import (
+    MonteCarloResult,
+    PortfolioPathSimulation,
+    simulate_portfolio_terminal_values,
+    simulate_random_portfolios,
+)
 from .risk_metrics import RiskReport, compute_risk_report
 
 __all__ = [
     "EfficientFrontierPoint",
     "MonteCarloResult",
+    "PortfolioPathSimulation",
     "OptimizationConstraints",
     "PortfolioSolution",
     "RiskReport",
@@ -25,5 +31,6 @@ __all__ = [
     "maximize_sharpe",
     "minimize_volatility",
     "returns_from_prices",
+    "simulate_portfolio_terminal_values",
     "simulate_random_portfolios",
 ]

@@ -1,163 +1,375 @@
 <!doctype html>
-<html lang="ru" data-theme="light" data-bs-theme="light">
+<html lang="ru">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Дашборд анализа портфеля (RUB)</title>
+  <title>Консоль портфельного анализа</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <style>
     :root {
-      --page-bg: #05070b;
-      --panel-bg: rgba(12, 16, 24, 0.86);
-      --panel-border: rgba(88, 106, 134, 0.34);
-      --text-color: #e6edf7;
-      --muted-color: #9fb0c7;
-      --accent: #2ee6a6;
-      --accent-soft: rgba(46, 230, 166, 0.16);
-      --danger-soft: rgba(248, 113, 113, 0.20);
-      --shadow: 0 22px 60px rgba(0, 0, 0, 0.45);
-      --chart-bg: #0d1320;
+      --bg: #020805;
+      --bg-2: #03110a;
+      --panel: rgba(6, 20, 12, 0.9);
+      --border: rgba(52, 255, 133, 0.34);
+      --text: #c4ffd7;
+      --muted: #79c892;
+      --accent: #34ff85;
+      --accent-soft: rgba(52, 255, 133, 0.12);
+      --warn: #ffd66b;
+      --danger: #ff7777;
+      --shadow: 0 0 28px rgba(52, 255, 133, 0.15);
     }
 
-    html[data-theme="light"] {
-      --page-bg: #f3f7ff;
-      --panel-bg: rgba(255, 255, 255, 0.88);
-      --panel-border: rgba(148, 163, 184, 0.35);
-      --text-color: #0f172a;
-      --muted-color: #475569;
-      --accent: #0ea5a1;
-      --accent-soft: rgba(45, 212, 191, 0.20);
-      --danger-soft: rgba(254, 202, 202, 0.48);
-      --shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
-      --chart-bg: #ffffff;
-    }
+    * { box-sizing: border-box; }
 
     body {
-      background:
-        radial-gradient(900px 500px at 0% 0%, rgba(46, 230, 166, 0.18), transparent 65%),
-        radial-gradient(900px 500px at 100% 100%, rgba(101, 176, 255, 0.14), transparent 60%),
-        var(--page-bg);
-      color: var(--text-color);
+      margin: 0;
       min-height: 100vh;
-      font-family: "Inter", sans-serif;
-      letter-spacing: 0.01em;
-    }
-
-    .page-shell {
-      max-width: 1320px;
-      margin: 0 auto;
-      padding: 24px 14px 42px;
-      animation: fadeIn 320ms ease-out;
-    }
-
-    .glass {
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-    }
-
-    .hero { padding: 20px; margin-bottom: 16px; }
-    .hero h1 { margin: 0; font-family: "Inter", sans-serif; font-weight: 700; font-size: clamp(1.2rem, 1.9vw, 1.9rem); }
-    .hero p { margin: 8px 0 0; color: var(--muted-color); font-size: 0.95rem; }
-
-    .pill {
+      background:
+        radial-gradient(950px 500px at 0% 0%, rgba(52, 255, 133, 0.1), transparent 70%),
+        radial-gradient(950px 500px at 100% 100%, rgba(52, 255, 133, 0.08), transparent 70%),
+        repeating-linear-gradient(
+          0deg,
+          rgba(52, 255, 133, 0.035) 0,
+          rgba(52, 255, 133, 0.035) 1px,
+          transparent 1px,
+          transparent 3px
+        ),
+        var(--bg);
+      color: var(--text);
+      font-family: "Share Tech Mono", monospace;
       letter-spacing: 0.02em;
-      border-radius: 999px;
-      padding: 8px 12px;
-      border: 1px solid var(--panel-border);
-      background: var(--accent-soft);
-      color: var(--text-color);
-      font-size: 0.82rem;
-      font-weight: 600;
-      white-space: nowrap;
     }
 
-    .layout { display: grid; grid-template-columns: 1fr; gap: 16px; }
-    .controls, .results { padding: 16px; }
-    .section-title { font-family: "Inter", sans-serif; font-weight: 700; margin: 0 0 12px; font-size: 1.03rem; }
+    .shell {
+      width: min(1420px, 96vw);
+      margin: 16px auto 30px;
+      display: grid;
+      gap: 12px;
+    }
 
-    .input-mode {
-      border: 1px solid var(--panel-border);
-      border-radius: 12px;
-      padding: 12px;
-      background: color-mix(in srgb, var(--panel-bg) 92%, transparent);
-      margin-bottom: 10px;
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      overflow: hidden;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    h1, h2, h3 { margin: 0; text-transform: uppercase; }
+    h1 { color: var(--accent); font-size: clamp(1.08rem, 2.2vw, 1.8rem); }
+    h2 { color: var(--accent); font-size: 0.98rem; margin-bottom: 10px; }
+    h3 { color: var(--muted); font-size: 0.86rem; margin-bottom: 8px; }
+
+    .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--accent-soft);
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 0.76rem;
+    }
+
+    .help-link {
+      border: 1px solid var(--border);
+      background: var(--accent-soft);
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 8px;
+      padding: 7px 11px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.84rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .help-link:hover { background: rgba(52, 255, 133, 0.2); }
+
+    .status-inline {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      min-height: 18px;
+    }
+
+    .run-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .run-row .status-inline {
+      margin-top: 0;
+      min-height: 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .tiny { color: var(--muted); font-size: 0.76rem; }
+    .hidden { display: none !important; }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
     }
 
     .asset-row {
-      border: 1px dashed var(--panel-border);
-      border-radius: 12px;
-      padding: 10px;
-      margin-bottom: 10px;
-      transition: border-color 160ms ease;
+      border: 1px dashed rgba(52, 255, 133, 0.34);
+      border-radius: 8px;
+      padding: 8px;
+      display: grid;
+      grid-template-columns: 112px 92px 84px 36px;
+      gap: 8px;
+      align-items: end;
     }
 
-    .asset-row:focus-within { border-color: var(--accent); }
-    .mono { font-family: Consolas, "Courier New", monospace; }
-
-    .card, .form-control, .form-select {
-      background: color-mix(in srgb, var(--panel-bg) 96%, transparent);
-      border-color: var(--panel-border);
-      color: var(--text-color);
-      border-radius: 12px;
+    .asset-meta {
+      grid-column: 1 / -1;
+      font-size: 0.72rem;
+      color: var(--muted);
+      border-top: 1px dashed rgba(52, 255, 133, 0.24);
+      padding-top: 6px;
     }
 
-    .form-control:focus, .form-select:focus {
+    label { display: block; margin-bottom: 3px; color: var(--muted); font-size: 0.74rem; }
+    input, textarea, select, button {
+      width: 100%;
+      border: 1px solid rgba(52, 255, 133, 0.35);
+      border-radius: 6px;
+      background: var(--bg-2);
+      color: var(--text);
+      padding: 7px 8px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.84rem;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      padding-right: 32px;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+        linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+      background-position:
+        calc(100% - 22px) 50%,
+        calc(100% - 16px) 50%;
+      background-size: 7px 7px, 7px 7px;
+      background-repeat: no-repeat;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-image 0.15s ease;
+    }
+
+    select:hover {
+      background-image:
+        linear-gradient(45deg, transparent 50%, #bfffd9 50%),
+        linear-gradient(135deg, #bfffd9 50%, transparent 50%);
+      border-color: #7dffb0;
+      box-shadow: 0 0 0 2px rgba(125, 255, 176, 0.2);
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(78%) sepia(81%) saturate(623%) hue-rotate(71deg) brightness(108%) contrast(103%);
+      opacity: 1;
+      cursor: pointer;
+      padding: 0;
+      transition: filter 0.15s ease, background-color 0.15s ease;
+    }
+
+    input[type="date"] {
+      color-scheme: dark;
+    }
+
+    input[type="date"]:hover::-webkit-calendar-picker-indicator,
+    input[type="date"]:focus::-webkit-calendar-picker-indicator {
+      background-color: rgba(52, 255, 133, 0.18);
+      filter: invert(86%) sepia(82%) saturate(640%) hue-rotate(67deg) brightness(118%) contrast(110%);
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent) 25%, transparent);
-      background: color-mix(in srgb, var(--panel-bg) 96%, transparent);
-      color: var(--text-color);
+      box-shadow: 0 0 0 2px rgba(52, 255, 133, 0.2);
     }
 
-    .form-check-input:checked { background-color: var(--accent); border-color: var(--accent); }
-    .hint { color: var(--muted-color); font-size: 0.85rem; }
+    textarea { min-height: 170px; resize: vertical; }
 
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-    .metric-card { border: 1px solid var(--panel-border); border-radius: 14px; padding: 10px; background: color-mix(in srgb, var(--panel-bg) 94%, transparent); }
-    .metric-card h3 { margin: 0 0 8px; font-size: 0.94rem; font-family: "Inter", sans-serif; font-weight: 700; }
-        .result-text {
-      margin: 0;
-      max-height: 220px;
-      overflow: auto;
-      font-size: 0.88rem;
-      line-height: 1.45;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .tips-text {
-      margin: 0;
-      max-height: none;
-      overflow: visible;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .score-chip {
-      display: inline-block;
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn { width: auto; min-width: 110px; font-weight: 700; cursor: pointer; }
+    .btn-main { background: rgba(52, 255, 133, 0.15); }
+    .btn-danger { border-color: rgba(255, 119, 119, 0.5); color: #ffc7c7; background: rgba(255, 119, 119, 0.08); }
+    .btn-remove {
+      min-width: 0;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-radius: 6px;
+      display: inline-grid;
+      place-items: center;
+      font-size: 0.86rem;
       font-weight: 700;
+      line-height: 1;
+      text-transform: uppercase;
+      border-color: rgba(52, 255, 133, 0.4);
+      color: var(--accent);
+      background: rgba(52, 255, 133, 0.1);
+    }
+    .btn-remove:hover { background: rgba(52, 255, 133, 0.2); }
+
+    .settings-grid {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .settings-grid-right {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .kpi {
+      border: 1px solid rgba(52, 255, 133, 0.25);
+      border-radius: 8px;
+      background: rgba(5, 16, 10, 0.75);
+      padding: 9px;
+      min-height: 84px;
+    }
+
+    .kpi .name { color: var(--muted); font-size: 0.74rem; text-transform: uppercase; }
+    .kpi .val { color: var(--accent); font-size: 1.06rem; margin-top: 6px; font-family: "JetBrains Mono", monospace; }
+
+    .text-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .box {
+      border: 1px solid rgba(52, 255, 133, 0.25);
+      border-radius: 8px;
+      padding: 10px;
+      background: rgba(4, 15, 9, 0.82);
+      min-height: 140px;
+      overflow: hidden;
+    }
+
+    pre {
+      margin: 0;
+      max-height: 300px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.81rem;
+      line-height: 1.45;
+    }
+
+    .score-badge {
+      display: inline-block;
+      margin-bottom: 8px;
       padding: 4px 10px;
       border-radius: 999px;
-      font-size: 0.84rem;
-      margin-bottom: 8px;
+      border: 1px solid rgba(52, 255, 133, 0.45);
+      background: rgba(52, 255, 133, 0.14);
+      font-size: 0.8rem;
+      font-weight: 700;
     }
 
-    .score-red { background: #fee2e2; color: #991b1b; }
-    .score-yellow { background: #fef3c7; color: #92400e; }
-    .score-green { background: #dcfce7; color: #166534; }
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid rgba(52, 255, 133, 0.23);
+      border-radius: 8px;
+      background: rgba(4, 15, 9, 0.82);
+      margin-bottom: 10px;
+    }
 
-    .chart-block { border: 1px solid var(--panel-border); border-radius: 14px; padding: 10px; margin-bottom: 12px; background: color-mix(in srgb, var(--panel-bg) 94%, transparent); min-width: 0; overflow: hidden; }
-    .chart-title { margin: 0 0 8px; font-size: 0.95rem; font-family: "Inter", sans-serif; font-weight: 700; }
-    .chart { height: 360px; border: 1px solid var(--panel-border); border-radius: 10px; background: var(--chart-bg); overflow: hidden; position: relative; min-width: 0; }
+    table {
+      width: 100%;
+      min-width: 700px;
+      border-collapse: collapse;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.79rem;
+    }
+
+    th, td {
+      border-bottom: 1px solid rgba(52, 255, 133, 0.2);
+      text-align: left;
+      padding: 7px 8px;
+      white-space: nowrap;
+    }
+
+    th { color: var(--muted); text-transform: uppercase; font-weight: 600; }
+    .act-buy { color: var(--accent); }
+    .act-sell { color: var(--danger); }
+    .act-adjust_minor { color: var(--warn); }
+    .act-hold { color: var(--muted); }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .chart-card {
+      border: 1px solid rgba(52, 255, 133, 0.24);
+      border-radius: 8px;
+      padding: 8px;
+      background: rgba(3, 12, 7, 0.95);
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .chart {
+      width: 100%;
+      height: 330px;
+      border: 1px solid rgba(52, 255, 133, 0.22);
+      border-radius: 6px;
+      overflow: hidden;
+      min-width: 0;
+    }
 
     .chart .js-plotly-plot,
     .chart .plot-container,
@@ -166,673 +378,918 @@
       max-width: 100% !important;
     }
 
-    .chart .modebar {
-      right: 6px !important;
-      top: 6px !important;
+    @media (max-width: 1220px) {
+      .layout { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .text-grid { grid-template-columns: 1fr; }
+      .settings-grid-right { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
-    .btn-primary { background: linear-gradient(135deg, var(--accent), #23b9ff); border-color: transparent; font-weight: 700; color: #041015; }
-    .btn-primary:focus { box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent) 30%, transparent); }
-    .btn-primary:hover { filter: brightness(1.05); border-color: transparent; }
-
-    .btn-outline-danger {
-      border-color: color-mix(in srgb, #ef4444 45%, var(--panel-border));
-      color: #ef4444;
-      background: color-mix(in srgb, var(--danger-soft) 45%, transparent);
+    @media (max-width: 860px) {
+      .asset-row { grid-template-columns: 1fr; }
+      .settings-grid { grid-template-columns: 1fr; }
+      .settings-grid-right { grid-template-columns: 1fr; }
+      .charts-grid { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: 1fr; }
     }
-
-    .btn-outline-danger:hover { color: #fff; background: #ef4444; border-color: #ef4444; }
-    .hidden { display: none; }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 1080px) { .chart { height: 330px; } .stats-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-<div class="page-shell">
-  <section class="hero glass">
-    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+  <div class="shell">
+    <section class="panel hero">
       <div>
-        <h1>Портфельная аналитика и оптимизация в рублях</h1>
-        <p>Ручной ввод или JSON, расчеты Марковица, Monte Carlo и визуализация рисков.</p>
+        <h1>Консоль анализа портфеля и оптимизации Марковица</h1>
+        <div class="tiny">Все на русском: импорт портфеля, корреляции, эффективная граница, Monte Carlo, риск-менеджмент и ребалансировка.</div>
       </div>
-      <div class="d-flex gap-2 align-items-center flex-wrap">
-        <button id="themeBtn" class="btn btn-outline-secondary btn-sm" type="button">Темная тема</button>
-        <span class="pill">Базовая валюта: RUB</span>
-        <span class="pill">Django + SciPy + Plotly</span>
+      <div class="chip-row">
+        <a href="/dashboard/how-it-works/" class="help-link" target="_blank" rel="noopener noreferrer">Как все работает?</a>
       </div>
-    </div>
-  </section>
+    </section>
 
     <section class="layout">
-    <aside class="controls glass">
-      <h2 class="section-title">Входные данные</h2>
-
-      <div class="input-mode">
-        <div class="fw-semibold mb-2">Формат загрузки портфеля</div>
-        <div class="d-flex gap-3 flex-wrap">
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="inputMode" id="modeManual" value="manual" checked>
-            <label class="form-check-label" for="modeManual">Ручной ввод</label>
+      <aside class="panel">
+        <h2>Шаг 1. Ввод портфеля</h2>
+        <div id="manualMode" class="row">
+          <div class="btn-row">
+            <button id="addAssetBtn" class="btn" type="button">+ Актив</button>
+            <button id="loadMoexBtn" class="btn" type="button">MOEX</button>
           </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="inputMode" id="modeJson" value="json">
-            <label class="form-check-label" for="modeJson">JSON</label>
+          <div class="btn-row">
+            <button id="sampleBestBtn" class="btn" type="button">Пример 1</button>
+            <button id="sampleMidBtn" class="btn" type="button">Пример 2</button>
+            <button id="sampleWorstBtn" class="btn" type="button">Пример 3</button>
           </div>
-        </div>
-      </div>
-
-      <div id="manualSection" class="mb-3">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <div class="fw-semibold">Активы и цены (RUB)</div>
-          <div class="d-flex gap-2">
-            <button id="fillRuSampleBtn" type="button" class="btn btn-outline-secondary btn-sm">Шаблон RU</button>
-            <button id="addAssetBtn" type="button" class="btn btn-outline-primary btn-sm">+ Актив</button>
-          </div>
+          <div id="assetRows"></div>
+          <div class="tiny">Вес вводится в процентах. При загрузке из MOEX средняя цена считается автоматически и вручную ее вводить не нужно. Ручной ввод средней цены нужен только для демо-режима без MOEX.</div>
         </div>
 
-        <div id="assetRows"></div>
+        <h2 style="margin-top: 12px;">Импорт через JSON</h2>
+        <div class="btn-row">
+          <button id="toggleJsonBtn" class="btn" type="button">Показать JSON</button>
+        </div>
+        <div id="jsonImportPanel" class="settings-grid hidden" style="margin-top: 8px;">
+          <label for="jsonPayload">Payload JSON</label>
+          <textarea id="jsonPayload"></textarea>
+          <button id="importJsonBtn" class="btn" type="button">Импортировать в форму</button>
+        </div>
+      </aside>
 
-        <div class="row g-3 mt-1">
-          <div class="col-12 col-lg-4">
-            <label for="startDate" class="form-label">Дата начала ряда</label>
-            <input id="startDate" type="date" class="form-control" value="2026-01-01" />
+      <main class="panel">
+        <h2>Шаг 2. Параметры расчета</h2>
+        <section class="settings-grid-right">
+          <div>
+            <label for="riskFreeRate">Безрисковая ставка (годовая)</label>
+            <input id="riskFreeRate" type="number" step="0.0001" value="0.125" />
           </div>
-          <div class="col-12 col-lg-8 d-flex align-items-end">
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" id="autoDates" checked>
-              <label class="form-check-label" for="autoDates">Автоматически генерировать даты по количеству цен</label>
-            </div>
+          <div>
+            <label for="targetProfile">Профиль цели</label>
+            <select id="targetProfile">
+              <option value="conservative">Консервативный</option>
+              <option value="balanced" selected>Сбалансированный</option>
+              <option value="aggressive">Агрессивный</option>
+            </select>
           </div>
-          <div class="col-6 col-lg-3">
-            <label for="riskFreeRate" class="form-label">Безрисковая ставка</label>
-            <input id="riskFreeRate" type="number" step="0.0001" class="form-control" value="0.17" />
+          <div>
+            <label for="nPortfolios">Портфелей Monte Carlo</label>
+            <input id="nPortfolios" type="number" min="200" value="2500" />
           </div>
-          <div class="col-6 col-lg-3">
-            <label for="nPortfolios" class="form-label">Monte Carlo</label>
-            <input id="nPortfolios" type="number" min="100" class="form-control" value="1500" />
+          <div>
+            <label for="frontierPoints">Точек эффективной границы</label>
+            <input id="frontierPoints" type="number" min="5" value="35" />
           </div>
-          <div class="col-6 col-lg-3">
-            <label for="frontierPoints" class="form-label">Точек границы</label>
-            <input id="frontierPoints" type="number" min="2" class="form-control" value="25" />
+          <div>
+            <label for="sampleLimit">Точек на графике MC</label>
+            <input id="sampleLimit" type="number" min="200" value="1200" />
           </div>
-          <div class="col-6 col-lg-3">
-            <label for="sampleLimit" class="form-label">Точек графика</label>
-            <input id="sampleLimit" type="number" min="50" class="form-control" value="400" />
+          <div>
+            <label for="threshold">Порог ребалансировки</label>
+            <input id="threshold" type="number" step="0.005" min="0.005" max="0.5" value="0.03" />
           </div>
+          <div>
+            <label for="horizonDays">Горизонт прогноза (дни)</label>
+            <input id="horizonDays" type="number" min="20" value="252" />
+          </div>
+          <div>
+            <label for="mcPaths">Сценариев прогноза</label>
+            <input id="mcPaths" type="number" min="500" value="3000" />
+          </div>
+          <div>
+            <label for="moexFrom">MOEX: дата от</label>
+            <input id="moexFrom" type="date" />
+          </div>
+          <div>
+            <label for="moexTill">MOEX: дата до</label>
+            <input id="moexTill" type="date" />
+          </div>
+        </section>
+
+        <div class="run-row">
+          <div class="status-inline" id="statusChip">Статус: ожидание</div>
+          <button id="runBtn" class="btn btn-main" type="button">Запустить анализ</button>
         </div>
 
-        <div class="mt-3 d-flex gap-2">
-          <button id="toJsonBtn" type="button" class="btn btn-outline-secondary btn-sm">Преобразовать в JSON</button>
+        <h2>Шаг 3. Ключевые показатели</h2>
+        <section class="kpi-grid">
+          <div class="kpi"><div class="name">Доходность (цель)</div><div id="kpiRet" class="val">-</div></div>
+          <div class="kpi"><div class="name">Риск (цель)</div><div id="kpiVol" class="val">-</div></div>
+          <div class="kpi"><div class="name">Sharpe (цель)</div><div id="kpiSharpe" class="val">-</div></div>
+          <div class="kpi"><div class="name">Диверсификация</div><div id="kpiDiv" class="val">-</div></div>
+        </section>
+
+        <section class="text-grid">
+          <div class="box">
+            <h3>Оценка портфеля</h3>
+            <div id="scoreBadge" class="score-badge">Оценка: - / 10</div>
+            <pre id="scoreText">Запустите расчет.</pre>
+          </div>
+          <div class="box">
+            <h3>Сводка риска (текущий vs целевой)</h3>
+            <pre id="riskText">Запустите расчет.</pre>
+          </div>
+          <div class="box">
+            <h3>Корреляции и средняя доходность</h3>
+            <pre id="summaryText">Запустите расчет.</pre>
+          </div>
+          <div class="box">
+            <h3>Параметры прогноза стоимости</h3>
+            <pre id="projectionText">Запустите расчет.</pre>
+          </div>
+        </section>
+
+        <h2>Шаг 4. Рекомендации по ребалансировке</h2>
+        <section class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Актив</th>
+                <th>Текущий вес</th>
+                <th>Целевой вес</th>
+                <th>Отклонение</th>
+                <th>Действие</th>
+                <th>Приоритет</th>
+              </tr>
+            </thead>
+            <tbody id="rebalanceBody">
+              <tr><td colspan="6">Нет данных</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <div class="box" style="margin-bottom: 10px;">
+          <h3>Комментарий по ребалансировке</h3>
+          <pre id="rebalanceComment">Запустите расчет.</pre>
         </div>
-      </div>
 
-      <div id="jsonSection" class="hidden">
-        <label for="payload" class="form-label fw-semibold">Payload JSON</label>
-        <textarea id="payload" class="form-control mono" rows="16"></textarea>
-      </div>
+        <h2>Шаг 5. Визуализация</h2>
+        <section class="charts-grid">
+          <div class="chart-card">
+            <h3>Эффективная граница</h3>
+            <div id="chartFrontier" class="chart"></div>
+          </div>
+          <div class="chart-card">
+            <h3>Monte Carlo портфели</h3>
+            <div id="chartMonteCarlo" class="chart"></div>
+          </div>
+          <div class="chart-card">
+            <h3>Матрица корреляций</h3>
+            <div id="chartCorrelation" class="chart"></div>
+          </div>
+          <div class="chart-card">
+            <h3>Распределение итоговой стоимости</h3>
+            <div id="chartProjection" class="chart"></div>
+          </div>
+        </section>
+      </main>
+    </section>
+  </div>
 
-      <div class="mt-3 d-flex align-items-center gap-2 flex-wrap">
-        <button id="runBtn" class="btn btn-primary">Запустить анализ</button>
-        <span id="status" class="hint"></span>
-      </div>
-      <div class="hint mt-2">Подсказка: у всех активов должно быть одинаковое количество цен.</div>
-    </aside>
+  <script>
+    const payloadEl = document.getElementById("jsonPayload");
+    const statusChipEl = document.getElementById("statusChip");
+    const assetRowsEl = document.getElementById("assetRows");
+    const jsonImportPanelEl = document.getElementById("jsonImportPanel");
+    const toggleJsonBtnEl = document.getElementById("toggleJsonBtn");
+    const moexFromEl = document.getElementById("moexFrom");
+    const moexTillEl = document.getElementById("moexTill");
+    let rowCounter = 0;
+    let lastCharts = null;
+    const suggestCache = new Map();
+    const suggestTimers = new Map();
 
-    <main class="results glass">
-      <h2 class="section-title">Результаты</h2>
-
-      <div class="stats-grid">
-        <div class="metric-card">
-          <h3>Портфель max Sharpe</h3>
-          <pre id="maxSharpe" class="mono result-text">Выполните расчет для отображения данных</pre>
-        </div>
-        <div class="metric-card">
-          <h3>Средняя доходность активов</h3>
-          <pre id="meanReturns" class="mono result-text">Выполните расчет для отображения данных</pre>
-        </div>
-
-      </div>
-
-      <div class="chart-block">
-        <div class="chart-title">Эффективная граница</div>
-        <div class="chart" id="chartFrontier"></div>
-      </div>
-
-      <div class="chart-block">
-        <div class="chart-title">Monte Carlo</div>
-        <div class="chart" id="chartMonteCarlo"></div>
-      </div>
-
-      <div class="chart-block">
-        <div class="chart-title">Корреляции активов</div>
-        <div class="chart" id="chartCorrelation"></div>
-      </div>
-
-      <div class="metric-card mb-0">
-        <h3>Рекомендации по ребалансировке (ситуационные)</h3>
-        <pre id="rebalancingTips" class="mono tips-text">Выполните расчет для отображения рекомендаций</pre>
-      </div>
-      <div class="metric-card mt-3">
-        <h3>Оценка портфеля</h3>
-        <div id="portfolioScore" class="result-text">Выполните расчет для оценки качества текущего портфеля.</div>
-      </div>
-    </main>
-  </section>
-</div>
-
-<script>
-  const THEME_KEY = "portfolio_dashboard_theme";
-  let lastChartPayload = null;
-  let assetRowId = 0;
-
-  const defaultPayload = {
-    prices: {
-      SBER: [281.4, 283.6, 286.1, 285.2, 287.0, 290.5, 289.7, 292.3],
-      GAZP: [168.2, 169.0, 170.4, 169.9, 171.5, 172.1, 171.3, 173.0],
-      LKOH: [7345, 7390, 7445, 7410, 7480, 7520, 7490, 7560]
-    },
-    dates: ["2026-01-01", "2026-01-02", "2026-01-03", "2026-01-04", "2026-01-05", "2026-01-06", "2026-01-07", "2026-01-08"],
-    n_portfolios: 1500,
-    frontier_points: 25,
-    dashboard_sample_limit: 400,
-    risk_free_rate: 0.17};
-
-  const ruSample = {
-    prices: {
-      SBER: [281.4, 283.6, 286.1, 285.2, 287.0, 290.5, 289.7, 292.3],
-      GAZP: [168.2, 169.0, 170.4, 169.9, 171.5, 172.1, 171.3, 173.0],
-      LKOH: [7345, 7390, 7445, 7410, 7480, 7520, 7490, 7560]
-    },
-    startDate: "2026-01-01"
-  };
-
-  const payloadEl = document.getElementById("payload");
-  const statusEl = document.getElementById("status");
-  const themeBtn = document.getElementById("themeBtn");
-  const manualSection = document.getElementById("manualSection");
-  const jsonSection = document.getElementById("jsonSection");
-  const assetRowsEl = document.getElementById("assetRows");
-  const rebalancingTipsEl = document.getElementById("rebalancingTips");
-  const portfolioScoreEl = document.getElementById("portfolioScore");
-  payloadEl.value = JSON.stringify(defaultPayload, null, 2);
-
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    return parts.length === 2 ? parts.pop().split(';').shift() : "";
-  }
-
-  function currentTheme() {
-    return document.documentElement.getAttribute("data-theme") || "light";
-  }
-
-  function updateThemeButton() {
-    themeBtn.textContent = currentTheme() === "dark" ? "Светлая тема" : "Темная тема";
-  }
-
-  function applyTheme(theme) {
-    document.documentElement.setAttribute("data-theme", theme);
-    document.documentElement.setAttribute("data-bs-theme", theme);
-    localStorage.setItem(THEME_KEY, theme);
-    updateThemeButton();
-    if (lastChartPayload) renderCharts(lastChartPayload);
-  }
-
-  function chartThemeLayout(figure) {
-    const themed = JSON.parse(JSON.stringify(figure));
-    themed.layout = themed.layout || {};
-
-    const dark = currentTheme() === "dark";
-    const fontColor = dark ? "#e5e7eb" : "#1f2937";
-    const bgColor = dark ? "#0f172a" : "#ffffff";
-    const gridColor = dark ? "rgba(148,163,184,0.14)" : "rgba(100,116,139,0.18)";
-    const axisLineColor = dark ? "rgba(148,163,184,0.35)" : "rgba(100,116,139,0.35)";
-    const hoverBg = dark ? "#0b1220" : "#ffffff";
-
-    themed.layout.paper_bgcolor = bgColor;
-    themed.layout.plot_bgcolor = bgColor;
-    themed.layout.font = Object.assign({}, themed.layout.font || {}, { color: fontColor });
-    themed.layout.colorway = dark
-      ? ["#2ee6a6", "#65b0ff", "#f59e0b", "#f472b6", "#22d3ee"]
-      : ["#0ea5a1", "#2563eb", "#d97706", "#db2777", "#0891b2"];
-    themed.layout.margin = Object.assign({}, themed.layout.margin || {}, { l: 12, r: 12, t: 18, b: 34, pad: 0 });
-    themed.layout.hoverlabel = Object.assign(
-      {
-        bgcolor: hoverBg,
-        bordercolor: dark ? "rgba(148,163,184,0.35)" : "rgba(100,116,139,0.25)",
-        font: { color: fontColor, size: 12 },
+    const demoPayload = {
+      prices: {
+        SBER: [281.4, 283.6, 286.1, 285.2, 287.0, 290.5, 289.7, 292.3, 294.1, 293.8],
+        GAZP: [168.2, 169.0, 170.4, 169.9, 171.5, 172.1, 171.3, 173.0, 174.2, 173.7],
+        LKOH: [7345, 7390, 7445, 7410, 7480, 7520, 7490, 7560, 7580, 7605],
+        YDEX: [4080, 4120, 4150, 4100, 4180, 4210, 4190, 4250, 4275, 4300],
+        ROSN: [567.5, 571.2, 575.0, 573.4, 577.8, 580.1, 578.4, 582.9, 585.5, 584.0],
+        NVTK: [1045, 1052, 1061, 1056, 1068, 1074, 1069, 1080, 1088, 1084]
       },
-      themed.layout.hoverlabel || {},
-    );
+      dates: [
+        "2026-01-01", "2026-01-02", "2026-01-03", "2026-01-04", "2026-01-05",
+        "2026-01-06", "2026-01-07", "2026-01-08", "2026-01-09", "2026-01-10"
+      ],
+      current_weights: {
+        SBER: 0.22,
+        GAZP: 0.16,
+        LKOH: 0.18,
+        YDEX: 0.14,
+        ROSN: 0.14,
+        NVTK: 0.16
+      },
+      risk_free_rate: 0.125,
+      target_profile: "balanced",
+      frontier_points: 35,
+      n_portfolios: 2500,
+      dashboard_sample_limit: 1200,
+      rebalancing_threshold: 0.03,
+      mc_horizon_days: 252,
+      mc_paths: 3000
+    };
 
-    if (themed.layout.xaxis) {
-      themed.layout.xaxis = Object.assign({}, themed.layout.xaxis, {
-        automargin: true,
-        showline: true,
-        linewidth: 1,
-        linecolor: axisLineColor,
-        gridcolor: gridColor,
-        zeroline: false,
-        ticks: "outside",
-      });
+    const manualPresetBest = [
+      { ticker: "SBER", weightPct: 26, avg: 310 },
+      { ticker: "LKOH", weightPct: 22, avg: 7600 },
+      { ticker: "YDEX", weightPct: 16, avg: 4300 },
+      { ticker: "NVTK", weightPct: 14, avg: 1090 },
+      { ticker: "ROSN", weightPct: 12, avg: 585 },
+      { ticker: "GAZP", weightPct: 10, avg: 174 }
+    ];
+
+    const manualPresetMid = [
+      { ticker: "SBER", weightPct: 18, avg: 294 },
+      { ticker: "GAZP", weightPct: 16, avg: 174 },
+      { ticker: "LKOH", weightPct: 17, avg: 7600 },
+      { ticker: "YDEX", weightPct: 16, avg: 4300 },
+      { ticker: "ROSN", weightPct: 16, avg: 585 },
+      { ticker: "NVTK", weightPct: 17, avg: 1090 }
+    ];
+
+    const manualPresetWorst = [
+      { ticker: "GAZP", weightPct: 42, avg: 174 },
+      { ticker: "ROSN", weightPct: 22, avg: 585 },
+      { ticker: "NVTK", weightPct: 14, avg: 1090 },
+      { ticker: "SBER", weightPct: 10, avg: 294 },
+      { ticker: "LKOH", weightPct: 7, avg: 7600 },
+      { ticker: "YDEX", weightPct: 5, avg: 4300 }
+    ];
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      return parts.length === 2 ? parts.pop().split(";").shift() : "";
     }
-    if (themed.layout.yaxis) {
-      themed.layout.yaxis = Object.assign({}, themed.layout.yaxis, {
-        automargin: true,
-        showline: true,
-        linewidth: 1,
-        linecolor: axisLineColor,
-        gridcolor: gridColor,
-        zeroline: false,
-        ticks: "outside",
-      });
+
+    function fmtPct(value) {
+      return `${(Number(value || 0) * 100).toFixed(2)}%`;
     }
 
-    return themed;
-  }
+    function fmtNum(value, digits = 3) {
+      return Number(value || 0).toFixed(digits);
+    }
 
-  function drawChart(elementId, figure) {
-    const themedFigure = chartThemeLayout(figure);
-    const dark = currentTheme() === "dark";
+    function createAssetRow(ticker = "", weightPct = "", avgPrice = "") {
+      rowCounter += 1;
+      const row = document.createElement("div");
+      row.className = "asset-row";
+      row.dataset.id = String(rowCounter);
+      row.dataset.source = "manual";
+      const listId = `ticker-list-${rowCounter}`;
+      row.innerHTML = `
+        <div>
+          <label>Тикер</label>
+          <input class="ticker" placeholder="SBER" value="${ticker}" list="${listId}" autocomplete="off" />
+          <datalist id="${listId}"></datalist>
+        </div>
+        <div>
+          <label>Вес, %</label>
+          <input class="weight" type="number" step="0.01" placeholder="25" value="${weightPct}" />
+        </div>
+        <div>
+          <label>Средняя цена</label>
+          <input class="avg" type="number" step="0.01" placeholder="100" value="${avgPrice}" />
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button type="button" class="btn btn-remove">X</button>
+        </div>
+        <div class="asset-meta">Источник цен: ручной/синтетический (MOEX не загружен)</div>
+      `;
 
-    themedFigure.data = (themedFigure.data || []).map((trace) => {
-      const updated = { ...trace };
+      const tickerInput = row.querySelector(".ticker");
+      const avgInput = row.querySelector(".avg");
 
-      if (updated.type === "scatter") {
-        updated.hovertemplate = updated.hovertemplate || "%{y:.4f}<extra>%{fullData.name}</extra>";
-        updated.line = Object.assign({ width: 2.4, shape: "spline", smoothing: 0.85 }, updated.line || {});
-        updated.marker = Object.assign(
-          {
-            size: 8,
-            opacity: 0.82,
-            line: { width: 1.2, color: dark ? "rgba(15,23,42,0.55)" : "rgba(255,255,255,0.7)" },
-          },
-          updated.marker || {},
-        );
+      tickerInput.addEventListener("input", () => {
+        row.dataset.source = "manual";
+        delete row.dataset.prices;
+        delete row.dataset.dates;
+        avgInput.readOnly = false;
+        row.querySelector(".asset-meta").textContent = "Источник цен: ручной/синтетический (MOEX не загружен)";
+        scheduleTickerSuggest(row);
+      });
+
+      tickerInput.addEventListener("change", async () => {
+        try {
+          if (tickerInput.value.trim().length < 2) return;
+          statusChipEl.textContent = "Статус: загрузка MOEX по тикеру...";
+          await loadMoexForRow(row);
+          statusChipEl.textContent = "Статус: MOEX загружен";
+        } catch (_error) {
+          statusChipEl.textContent = "Статус: тикер не найден в MOEX";
+        }
+      });
+
+      avgInput.addEventListener("input", () => {
+        if (row.dataset.source === "moex") {
+          row.dataset.source = "manual";
+          delete row.dataset.prices;
+          delete row.dataset.dates;
+          avgInput.readOnly = false;
+          row.querySelector(".asset-meta").textContent = "Источник цен: ручной/синтетический (MOEX не загружен)";
+        }
+      });
+
+      row.querySelector(".btn-remove").addEventListener("click", () => {
+        row.remove();
+        if (!assetRowsEl.children.length) createAssetRow();
+      });
+      assetRowsEl.appendChild(row);
+    }
+
+    function normalizeWeightsFromPercent(rawWeights) {
+      const keys = Object.keys(rawWeights);
+      if (!keys.length) return {};
+
+      const clean = {};
+      let total = 0;
+      keys.forEach((key) => {
+        const value = Number(rawWeights[key]);
+        if (!Number.isNaN(value) && value > 0) {
+          clean[key] = value;
+          total += value;
+        }
+      });
+
+      if (total <= 0) {
+        const equal = 1 / keys.length;
+        const eq = {};
+        keys.forEach((k) => { eq[k] = equal; });
+        return eq;
       }
 
-      if (updated.type === "heatmap") {
-        updated.zsmooth = "best";
-        updated.hovertemplate = updated.hovertemplate || "x=%{x}<br>y=%{y}<br>corr=%{z:.3f}<extra></extra>";
+      const normalized = {};
+      Object.keys(clean).forEach((key) => {
+        normalized[key] = clean[key] / total;
+      });
+      return normalized;
+    }
+
+    function fillTickerOptions(row, suggestions) {
+      const datalist = row.querySelector("datalist");
+      if (!datalist) return;
+      datalist.innerHTML = "";
+      suggestions.forEach((item) => {
+        const option = document.createElement("option");
+        option.value = item.secid;
+        option.label = `${item.shortname || ""} | ${item.board || "TQBR"}`;
+        datalist.appendChild(option);
+      });
+    }
+
+    async function requestTickerSuggestions(query) {
+      const key = query.trim().toUpperCase();
+      if (key.length < 1) return [];
+      if (suggestCache.has(key)) return suggestCache.get(key);
+
+      const response = await fetch(`/api/portfolio/moex/suggest/?q=${encodeURIComponent(key)}`);
+      if (!response.ok) return [];
+      const data = await response.json();
+      const suggestions = data.suggestions || [];
+      suggestCache.set(key, suggestions);
+      return suggestions;
+    }
+
+    function scheduleTickerSuggest(row) {
+      const ticker = row.querySelector(".ticker").value.trim().toUpperCase();
+      const timerKey = row.dataset.id;
+      if (suggestTimers.has(timerKey)) {
+        clearTimeout(suggestTimers.get(timerKey));
+      }
+      if (ticker.length < 1) {
+        fillTickerOptions(row, []);
+        return;
       }
 
-      return updated;
-    });
+      const timer = setTimeout(async () => {
+        const suggestions = await requestTickerSuggestions(ticker);
+        fillTickerOptions(row, suggestions);
+      }, 180);
+      suggestTimers.set(timerKey, timer);
+    }
 
-    if (elementId === "chartMonteCarlo" || elementId === "chartFrontier") {
-      themedFigure.layout = themedFigure.layout || {};
-      themedFigure.layout.legend = Object.assign({}, themedFigure.layout.legend || {}, {
+    async function fetchMoexHistoryForTicker(ticker) {
+      const params = new URLSearchParams();
+      params.set("secid", ticker);
+      if (moexFromEl.value) params.set("from", moexFromEl.value);
+      if (moexTillEl.value) params.set("till", moexTillEl.value);
+
+      const response = await fetch(`/api/portfolio/moex/history/?${params.toString()}`);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail || `MOEX HTTP ${response.status}`);
+      }
+      return data;
+    }
+
+    async function loadMoexForRow(row) {
+      const tickerInput = row.querySelector(".ticker");
+      const avgInput = row.querySelector(".avg");
+      const ticker = tickerInput.value.trim().toUpperCase();
+      if (!ticker) return;
+
+      const data = await fetchMoexHistoryForTicker(ticker);
+      row.dataset.source = "moex";
+      row.dataset.prices = JSON.stringify(data.prices || []);
+      row.dataset.dates = JSON.stringify(data.dates || []);
+      row.dataset.board = data.board || "TQBR";
+      avgInput.value = Number(data.avg_price || 0).toFixed(2);
+      avgInput.readOnly = true;
+      row.querySelector(".asset-meta").textContent = `Источник цен: MOEX (${data.board || "TQBR"}), точек: ${data.points || 0}, средняя цена рассчитана автоматически`;
+      tickerInput.value = (data.secid || ticker).toUpperCase();
+    }
+
+    async function loadMoexForAllRows() {
+      const rows = [...assetRowsEl.querySelectorAll(".asset-row")];
+      if (!rows.length) throw new Error("Нет активов для загрузки");
+
+      let loadedCount = 0;
+      for (const row of rows) {
+        const ticker = row.querySelector(".ticker").value.trim();
+        if (!ticker) continue;
+        await loadMoexForRow(row);
+        loadedCount += 1;
+      }
+      if (!loadedCount) {
+        throw new Error("Заполните тикеры перед загрузкой MOEX");
+      }
+      return loadedCount;
+    }
+
+    function buildSyntheticSeries(avgPrice, length, assetIndex) {
+      const avg = Math.max(Number(avgPrice || 0), 0.01);
+      const arr = [];
+      for (let t = 0; t < length; t += 1) {
+        const s1 = 0.018 * Math.sin((t + 1) * (assetIndex + 1) / 9);
+        const s2 = 0.007 * Math.cos((t + 2) * (assetIndex + 2) / 7);
+        const drift = 0.0004 * (t - length / 2);
+        const raw = avg * (1 + s1 + s2 + drift);
+        arr.push(Math.max(raw, avg * 0.4));
+      }
+      const mean = arr.reduce((acc, x) => acc + x, 0) / arr.length;
+      const scale = avg / mean;
+      return arr.map((x) => Number((x * scale).toFixed(4)));
+    }
+
+    function buildDates(length) {
+      const start = new Date("2026-01-01T00:00:00");
+      const dates = [];
+      for (let i = 0; i < length; i += 1) {
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
+        dates.push(`${d.getFullYear()}-${mm}-${dd}`);
+      }
+      return dates;
+    }
+
+    function loadManualPreset(presetRows, label) {
+      assetRowsEl.innerHTML = "";
+      presetRows.forEach((item) => {
+        createAssetRow(item.ticker, Number(item.weightPct).toFixed(2), Number(item.avg).toFixed(2));
+      });
+      statusChipEl.textContent = `Статус: загружен ${label}`;
+    }
+
+    function toggleJsonImportPanel() {
+      const hidden = jsonImportPanelEl.classList.toggle("hidden");
+      toggleJsonBtnEl.textContent = hidden ? "Показать JSON" : "Скрыть JSON";
+    }
+
+    function setManualFromPayload(payload) {
+      const prices = payload.prices || {};
+      const weights = payload.current_weights || {};
+      assetRowsEl.innerHTML = "";
+
+      const tickers = Object.keys(prices);
+      tickers.forEach((ticker) => {
+        const series = prices[ticker] || [];
+        const avg = series.length ? series.reduce((acc, x) => acc + Number(x || 0), 0) / series.length : 0;
+        const w = Number(weights[ticker] || 0) * 100;
+        createAssetRow(ticker, w ? w.toFixed(2) : "", avg ? avg.toFixed(2) : "");
+        const row = assetRowsEl.lastElementChild;
+        if (row) {
+          row.dataset.source = "manual";
+          delete row.dataset.prices;
+          delete row.dataset.dates;
+          const avgInput = row.querySelector(".avg");
+          avgInput.readOnly = false;
+          row.querySelector(".asset-meta").textContent = "Источник цен: ручной/синтетический (MOEX не загружен)";
+        }
+      });
+      if (!tickers.length) createAssetRow();
+
+      document.getElementById("riskFreeRate").value = payload.risk_free_rate ?? 0.125;
+      document.getElementById("targetProfile").value = payload.target_profile ?? "balanced";
+      document.getElementById("nPortfolios").value = payload.n_portfolios ?? 2500;
+      document.getElementById("frontierPoints").value = payload.frontier_points ?? 35;
+      document.getElementById("sampleLimit").value = payload.dashboard_sample_limit ?? 1200;
+      document.getElementById("threshold").value = payload.rebalancing_threshold ?? 0.03;
+      document.getElementById("horizonDays").value = payload.mc_horizon_days ?? 252;
+      document.getElementById("mcPaths").value = payload.mc_paths ?? 3000;
+
+      payloadEl.value = JSON.stringify(payload, null, 2);
+    }
+
+    function buildPayloadManual() {
+      const rows = [...assetRowsEl.querySelectorAll(".asset-row")];
+      if (!rows.length) throw new Error("Добавьте хотя бы один актив");
+
+      const prices = {};
+      const rawWeights = {};
+      const parsedItems = [];
+
+      rows.forEach((row) => {
+        const ticker = row.querySelector(".ticker").value.trim().toUpperCase();
+        const weight = Number(row.querySelector(".weight").value);
+        const avg = Number(row.querySelector(".avg").value);
+        if (!ticker) return;
+
+        let moexPrices = [];
+        let moexDates = [];
+        if (row.dataset.source === "moex") {
+          try {
+            moexPrices = JSON.parse(row.dataset.prices || "[]");
+            moexDates = JSON.parse(row.dataset.dates || "[]");
+          } catch (_error) {
+            moexPrices = [];
+            moexDates = [];
+          }
+        }
+
+        const hasMoexSeries = Array.isArray(moexPrices) && Array.isArray(moexDates) && moexPrices.length >= 20 && moexPrices.length === moexDates.length;
+
+        if (!hasMoexSeries && (Number.isNaN(avg) || avg <= 0)) {
+          throw new Error(`Для ${ticker} загрузите MOEX или укажите среднюю цену`);
+        }
+
+        parsedItems.push({
+          ticker,
+          weight: Number.isNaN(weight) ? 0 : weight,
+          avg,
+          hasMoexSeries,
+          moexPrices,
+          moexDates,
+        });
+      });
+
+      const realItems = parsedItems.filter((item) => item.hasMoexSeries);
+      let useDates = [];
+
+      if (realItems.length) {
+        let common = null;
+        realItems.forEach((item) => {
+          const setDates = new Set(item.moexDates);
+          common = common === null
+            ? setDates
+            : new Set([...common].filter((dateValue) => setDates.has(dateValue)));
+        });
+
+        const sortedCommonDates = [...(common || new Set())].sort();
+        if (sortedCommonDates.length >= 40) {
+          useDates = sortedCommonDates;
+        }
+      }
+
+      let fallbackLength = 140;
+      if (realItems.length && !useDates.length) {
+        fallbackLength = Math.max(40, Math.min(...realItems.map((item) => item.moexPrices.length)));
+      }
+
+      parsedItems.forEach((item, idx) => {
+        if (item.hasMoexSeries) {
+          if (useDates.length) {
+            const map = new Map();
+            item.moexDates.forEach((d, i) => map.set(d, Number(item.moexPrices[i])));
+            prices[item.ticker] = useDates.map((d) => Number(map.get(d)));
+          } else {
+            prices[item.ticker] = item.moexPrices.slice(-fallbackLength).map((x) => Number(x));
+          }
+        } else {
+          const targetLength = useDates.length || fallbackLength;
+          prices[item.ticker] = buildSyntheticSeries(item.avg, targetLength, idx);
+        }
+        rawWeights[item.ticker] = item.weight;
+      });
+
+      const tickers = Object.keys(prices);
+      if (!tickers.length) throw new Error("Портфель пустой");
+
+      let dates = [];
+      if (useDates.length) {
+        dates = useDates;
+      } else if (realItems.length) {
+        dates = realItems[0].moexDates.slice(-fallbackLength);
+      } else {
+        dates = buildDates(fallbackLength);
+      }
+
+      return {
+        prices,
+        dates,
+        current_weights: normalizeWeightsFromPercent(rawWeights),
+        risk_free_rate: Number(document.getElementById("riskFreeRate").value || 0),
+        target_profile: document.getElementById("targetProfile").value,
+        frontier_points: Number(document.getElementById("frontierPoints").value || 35),
+        n_portfolios: Number(document.getElementById("nPortfolios").value || 2500),
+        dashboard_sample_limit: Number(document.getElementById("sampleLimit").value || 1200),
+        rebalancing_threshold: Number(document.getElementById("threshold").value || 0.03),
+        mc_horizon_days: Number(document.getElementById("horizonDays").value || 252),
+        mc_paths: Number(document.getElementById("mcPaths").value || 3000)
+      };
+    }
+
+    function payloadFromCurrentMode() {
+      return buildPayloadManual();
+    }
+
+    function styleFigure(rawFigure) {
+      const fig = JSON.parse(JSON.stringify(rawFigure || {}));
+      fig.layout = fig.layout || {};
+      fig.layout.title = null;
+      fig.layout.paper_bgcolor = "#03130b";
+      fig.layout.plot_bgcolor = "#03130b";
+      fig.layout.font = Object.assign({}, fig.layout.font || {}, {
+        color: "#c4ffd7",
+        family: "JetBrains Mono",
+        size: 11
+      });
+      fig.layout.margin = Object.assign({ l: 48, r: 18, t: 20, b: 36 }, fig.layout.margin || {});
+      fig.layout.xaxis = Object.assign({}, fig.layout.xaxis || {}, {
+        gridcolor: "rgba(52,255,133,0.18)",
+        linecolor: "rgba(52,255,133,0.4)",
+        zeroline: false,
+        automargin: true
+      });
+      fig.layout.yaxis = Object.assign({}, fig.layout.yaxis || {}, {
+        gridcolor: "rgba(52,255,133,0.18)",
+        linecolor: "rgba(52,255,133,0.4)",
+        zeroline: false,
+        automargin: true
+      });
+      fig.layout.legend = Object.assign({}, fig.layout.legend || {}, {
         orientation: "h",
         yanchor: "bottom",
         y: 1.02,
         xanchor: "left",
         x: 0
       });
-    }
-    themedFigure.layout = themedFigure.layout || {};
-    themedFigure.layout.title = null;
-    Plotly.newPlot(elementId, themedFigure.data, themedFigure.layout, {
-      responsive: true,
-      displaylogo: false,
-      scrollZoom: false,
-      doubleClick: "reset",
-      modeBarButtonsToRemove: ["lasso2d", "select2d", "autoScale2d", "toggleSpikelines"],
-    });
-  }
-
-  function renderCharts(charts) {
-    drawChart("chartFrontier", charts.efficient_frontier);
-    drawChart("chartMonteCarlo", charts.monte_carlo);
-    drawChart("chartCorrelation", charts.correlation_heatmap);
-  }
-
-  function parseNumberList(text) {
-    return text.split(",").map(x => x.trim()).filter(Boolean).map(v => Number(v));
-  }
-
-  function createAssetRow(ticker = "", prices = "") {
-    assetRowId += 1;
-    const row = document.createElement("div");
-    row.className = "asset-row";
-    row.dataset.rowId = String(assetRowId);
-    row.innerHTML = `
-      <div class="row g-2 align-items-end">
-        <div class="col-12 col-lg-3">
-          <label class="form-label">Тикер</label>
-          <input class="form-control ticker-input" placeholder="SBER" value="${ticker}" />
-        </div>
-        <div class="col-12 col-lg-8">
-          <label class="form-label price-label">Цена закрытия (через запятую)</label>
-          <input class="form-control mono prices-input" placeholder="281.4, 283.6, 286.1" value="${prices}" />
-        </div>
-        <div class="col-12 col-lg-1 d-grid">
-          <button type="button" class="btn btn-outline-danger remove-asset-btn">x</button>
-        </div>
-      </div>
-    `;
-
-    row.querySelector(".remove-asset-btn").addEventListener("click", () => {
-      row.remove();
-      if (!assetRowsEl.children.length) createAssetRow();
-      updatePriceLabels();
-    });
-
-    assetRowsEl.appendChild(row);
-    updatePriceLabels();
-  }
-
-  function updatePriceLabels() {
-    const labels = [...assetRowsEl.querySelectorAll(".price-label")];
-    labels.forEach((label, index) => {
-      label.textContent = index === 0
-        ? "Цены закрытия в RUB (через запятую)"
-        : "Цена закрытия (через запятую)";
-    });
-  }
-
-  function formatDateYYYYMMDD(date) {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    const d = String(date.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
-  }
-
-  function generateDatesFromStart(startDateStr, length) {
-    if (!startDateStr) throw new Error("Укажите дату начала ряда для автогенерации дат");
-    const start = new Date(startDateStr + "T00:00:00");
-    if (Number.isNaN(start.getTime())) throw new Error("Некорректная дата начала ряда");
-
-    const dates = [];
-    for (let i = 0; i < length; i += 1) {
-      const d = new Date(start);
-      d.setDate(start.getDate() + i);
-      dates.push(formatDateYYYYMMDD(d));
-    }
-    return dates;
-  }
-
-  function setManualFromPayload(payload) {
-    assetRowsEl.innerHTML = "";
-    const prices = payload.prices || {};
-    const tickers = Object.keys(prices);
-
-    if (!tickers.length) createAssetRow();
-    else tickers.forEach(t => createAssetRow(t, (prices[t] || []).join(", ")));
-
-    document.getElementById("riskFreeRate").value = payload.risk_free_rate ?? 0.17;
-    document.getElementById("nPortfolios").value = payload.n_portfolios ?? 1500;
-    document.getElementById("frontierPoints").value = payload.frontier_points ?? 25;
-    document.getElementById("sampleLimit").value = payload.dashboard_sample_limit ?? 400;
-
-    const startDate = Array.isArray(payload.dates) && payload.dates.length ? payload.dates[0] : "2026-01-01";
-    document.getElementById("startDate").value = startDate;
-    document.getElementById("autoDates").checked = true;
-  }
-
-  function buildPayloadFromManual() {
-    const prices = {};
-    let expectedLength = null;
-
-    const rows = [...assetRowsEl.querySelectorAll(".asset-row")];
-    if (!rows.length) throw new Error("Добавьте хотя бы один актив");
-
-    for (const row of rows) {
-      const ticker = row.querySelector(".ticker-input").value.trim().toUpperCase();
-      const pricesRaw = row.querySelector(".prices-input").value.trim();
-
-      if (!ticker) continue;
-      if (!pricesRaw) throw new Error(`Укажите цены для актива ${ticker}`);
-
-      const values = parseNumberList(pricesRaw);
-      if (values.some(v => Number.isNaN(v))) throw new Error(`Некорректные цены у актива ${ticker}`);
-      if (values.length < 2) throw new Error(`Для ${ticker} нужно минимум 2 цены`);
-
-      if (expectedLength === null) expectedLength = values.length;
-      if (expectedLength !== values.length) throw new Error(`У всех активов должно быть одинаковое число цен. ${ticker}: ${values.length}, ожидалось: ${expectedLength}`);
-
-      prices[ticker] = values;
+      return fig;
     }
 
-    const tickers = Object.keys(prices);
-    if (!tickers.length) throw new Error("Не заполнены активы");
-
-    const payload = {
-      prices,
-      risk_free_rate: Number(document.getElementById("riskFreeRate").value || 0.17),
-      n_portfolios: Number(document.getElementById("nPortfolios").value || 1500),
-      frontier_points: Number(document.getElementById("frontierPoints").value || 25),
-      dashboard_sample_limit: Number(document.getElementById("sampleLimit").value || 400)};
-
-    if (document.getElementById("autoDates").checked) {
-      payload.dates = generateDatesFromStart(document.getElementById("startDate").value, expectedLength);
-    }
-
-    return payload;
-  }
-
-  function currentInputMode() {
-    return document.querySelector("input[name='inputMode']:checked").value;
-  }
-
-  function switchInputMode() {
-    const mode = currentInputMode();
-    manualSection.classList.toggle("hidden", mode !== "manual");
-    jsonSection.classList.toggle("hidden", mode !== "json");
-  }
-
-  function payloadFromCurrentMode() {
-    if (currentInputMode() === "json") return JSON.parse(payloadEl.value);
-    return buildPayloadFromManual();
-  }
-
-  function formatPercent(value) {
-    return `${(Number(value) * 100).toFixed(2)}%`;
-  }
-
-  function renderMaxSharpeText(maxSharpe) {
-    const lines = [
-      `Ожидаемая доходность: ${formatPercent(maxSharpe.expected_return)}`,
-      `Волатильность: ${formatPercent(maxSharpe.volatility)}`,
-      `Коэффициент Sharpe: ${Number(maxSharpe.sharpe_ratio).toFixed(3)}`,
-      "",
-      "Веса активов:"
-    ];
-
-    for (const [ticker, weight] of Object.entries(maxSharpe.weights || {})) {
-      lines.push(`- ${ticker}: ${formatPercent(weight)}`);
-    }
-    return lines.join("\n");
-  }
-
-  function renderMeanReturnsText(meanReturns) {
-    const lines = ["Среднегодовая доходность по активам:"];
-    for (const [ticker, value] of Object.entries(meanReturns || {})) {
-      lines.push(`- ${ticker}: ${formatPercent(value)}`);
-    }
-    return lines.join("\n");
-  }
-
-
-  function blendWeights(weightsA, weightsB, alpha = 0.5) {
-    const keys = new Set([...Object.keys(weightsA || {}), ...Object.keys(weightsB || {})]);
-    const blended = {};
-    keys.forEach(k => {
-      blended[k] = alpha * Number(weightsA?.[k] || 0) + (1 - alpha) * Number(weightsB?.[k] || 0);
-    });
-    return blended;
-  }
-
-  function weightsToLines(weights) {
-    return Object.entries(weights || {})
-      .sort((a, b) => b[1] - a[1])
-      .map(([ticker, weight]) => `- ${ticker}: ${formatPercent(weight)}`)
-      .join("\n");
-  }
-
-  function renderRebalancingRecommendations(optimization) {
-    const minVol = optimization?.min_volatility || {};
-    const maxSharpe = optimization?.max_sharpe || {};
-    const balanced = blendWeights(minVol.weights || {}, maxSharpe.weights || {}, 0.5);
-
-    const lines = [];
-    lines.push("1) Консервативный сценарий (при росте неопределенности)");
-    lines.push("Целевой профиль: портфель минимальной волатильности.");
-    lines.push(weightsToLines(minVol.weights || {}));
-    lines.push("");
-
-    lines.push("2) Сбалансированный сценарий (нейтральный рынок)");
-    lines.push("Целевой профиль: 50/50 между min-vol и max-Sharpe.");
-    lines.push(weightsToLines(balanced));
-    lines.push("");
-
-    lines.push("3) Агрессивный сценарий (ставка на доходность)");
-    lines.push("Целевой профиль: портфель максимального Sharpe.");
-    lines.push(weightsToLines(maxSharpe.weights || {}));
-    lines.push("");
-
-    lines.push("4) Триггеры ребалансировки");
-    lines.push("- Пересмотр портфеля, если отклонение фактического веса от целевого > 5 п.п.");
-    lines.push("- Плановый ребаланс 1 раз в месяц или после резких движений рынка.");
-    lines.push("- При росте волатильности: смещать структуру в сторону min-vol.");
-
-    return lines.join("\n");
-  }
-
-
-  function getScoreClass(score) {
-    if (score <= 4) return "score-red";
-    if (score <= 7) return "score-yellow";
-    return "score-green";
-  }
-
-  function renderPortfolioScore(optimization) {
-    const maxSharpe = optimization?.max_sharpe || {};
-    const weights = maxSharpe.weights || {};
-    const sharpe = Number(maxSharpe.sharpe_ratio || 0);
-    const volatility = Number(maxSharpe.volatility || 0);
-
-    const sharpeScore = Math.max(0, Math.min(3, sharpe)) / 3 * 5;
-
-    let riskScore = 0;
-    if (volatility <= 0.15) riskScore = 3;
-    else if (volatility <= 0.25) riskScore = 2;
-    else if (volatility <= 0.35) riskScore = 1;
-
-    const diversifiedCount = Object.values(weights).filter(w => Number(w) >= 0.05).length;
-    const diversificationScore = Math.min(5, diversifiedCount) / 5 * 2;
-
-    const score = Math.max(0, Math.min(10, sharpeScore + riskScore + diversificationScore));
-    const scoreClass = getScoreClass(score);
-
-    const rationale = [
-      `Sharpe-вклад: ${sharpeScore.toFixed(2)} / 5 (Sharpe=${sharpe.toFixed(3)})`,
-      `Риск-вклад: ${riskScore.toFixed(2)} / 3 (волатильность=${(volatility*100).toFixed(2)}%)`,
-      `Диверсификация: ${diversificationScore.toFixed(2)} / 2 (активов с весом >= 5%: ${diversifiedCount})`
-    ];
-
-    portfolioScoreEl.innerHTML = `
-      <div class="score-chip ${scoreClass}">Оценка портфеля: ${score.toFixed(1)} / 10</div>
-      <div>${rationale.join("<br>")}</div>
-    `;
-  }
-  async function runAnalysis() {
-    statusEl.textContent = "Выполняется расчет...";
-    try {
-      const payload = payloadFromCurrentMode();
-      const response = await fetch("/api/portfolio/dashboard/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": getCookie("csrftoken")
-        },
-        body: JSON.stringify(payload)
+    function drawChart(elementId, figure) {
+      const fig = styleFigure(figure);
+      Plotly.react(elementId, fig.data || [], fig.layout || {}, {
+        responsive: true,
+        displaylogo: false,
+        modeBarButtonsToRemove: ["lasso2d", "select2d", "toggleSpikelines", "autoScale2d"]
       });
+      window.setTimeout(() => Plotly.Plots.resize(elementId), 30);
+    }
 
-      if (!response.ok) {
-        const message = await response.text();
-        throw new Error(message || `HTTP ${response.status}`);
+    function renderCharts(charts) {
+      drawChart("chartFrontier", charts.efficient_frontier);
+      drawChart("chartMonteCarlo", charts.monte_carlo);
+      drawChart("chartCorrelation", charts.correlation_heatmap);
+      drawChart("chartProjection", charts.projection_distribution);
+    }
+
+    function renderKpi(data) {
+      const target = data.risk_management?.target_portfolio || {};
+      const divScore = Number(data.summary?.diversification_score || 0) * 100;
+      document.getElementById("kpiRet").textContent = fmtPct(target.expected_return);
+      document.getElementById("kpiVol").textContent = fmtPct(target.volatility);
+      document.getElementById("kpiSharpe").textContent = fmtNum(target.sharpe_ratio, 3);
+      document.getElementById("kpiDiv").textContent = `${divScore.toFixed(1)} / 100`;
+    }
+
+    function renderRisk(data) {
+      const cur = data.risk_management?.current_portfolio || {};
+      const tar = data.risk_management?.target_portfolio || {};
+      const lines = [
+        `ТЕКУЩИЙ | Доходность: ${fmtPct(cur.expected_return)} | Риск: ${fmtPct(cur.volatility)} | Sharpe: ${fmtNum(cur.sharpe_ratio, 3)}`,
+        `ЦЕЛЕВОЙ | Доходность: ${fmtPct(tar.expected_return)} | Риск: ${fmtPct(tar.volatility)} | Sharpe: ${fmtNum(tar.sharpe_ratio, 3)}`,
+        "",
+        `Текущий VaR95: ${fmtPct(cur.risk?.var_95)} | CVaR95: ${fmtPct(cur.risk?.cvar_95)} | Max Drawdown: ${fmtPct(cur.risk?.max_drawdown)}`,
+        `Целевой VaR95: ${fmtPct(tar.risk?.var_95)} | CVaR95: ${fmtPct(tar.risk?.cvar_95)} | Max Drawdown: ${fmtPct(tar.risk?.max_drawdown)}`,
+      ];
+      document.getElementById("riskText").textContent = lines.join("\n");
+    }
+
+    function renderSummary(data) {
+      const meanReturns = data.summary?.mean_returns || {};
+      const insights = data.summary?.correlation_insights || {};
+      const positive = insights.max_positive;
+      const negative = insights.max_negative;
+
+      const lines = ["Среднегодовая доходность активов:"];
+      Object.entries(meanReturns).forEach(([ticker, value]) => {
+        lines.push(`- ${ticker}: ${fmtPct(value)}`);
+      });
+      lines.push("");
+      if (positive) lines.push(`Макс. положительная корреляция: ${positive.asset_a}/${positive.asset_b} (${fmtNum(positive.value, 3)})`);
+      if (negative) lines.push(`Макс. отрицательная корреляция: ${negative.asset_a}/${negative.asset_b} (${fmtNum(negative.value, 3)})`);
+
+      document.getElementById("summaryText").textContent = lines.join("\n");
+    }
+
+    function renderProjection(data) {
+      const p = data.projection || {};
+      const q = p.quantiles || {};
+      const lines = [
+        `Горизонт: ${p.horizon_days ?? "-"} дней`,
+        `Сценариев: ${p.n_paths ?? "-"}`,
+        `Средняя итоговая стоимость: ${fmtNum(p.mean_terminal, 2)}`,
+        `Медианная итоговая стоимость: ${fmtNum(p.median_terminal, 2)}`,
+        `P05 / P50 / P95: ${fmtNum(q.p05, 2)} / ${fmtNum(q.p50, 2)} / ${fmtNum(q.p95, 2)}`
+      ];
+      document.getElementById("projectionText").textContent = lines.join("\n");
+    }
+
+    function computePortfolioScore(data) {
+      const cur = data.risk_management?.current_portfolio || {};
+      const sharpe = Number(cur.sharpe_ratio || 0);
+      const expRet = Number(cur.expected_return || 0);
+      const vol = Number(cur.volatility || 0);
+      const maxDD = Math.abs(Number(cur.risk?.max_drawdown || 0));
+      const div = Number(data.summary?.diversification_score || 0);
+      const weights = Object.values(cur.weights || {}).map((v) => Number(v || 0));
+      const maxWeight = weights.length ? Math.max(...weights) : 1;
+
+      const sharpePart = Math.max(0, Math.min(1, (sharpe + 1.0) / 3.0)) * 2.5;
+      const returnPart = Math.max(0, Math.min(1, (expRet + 0.15) / 0.45)) * 1.5;
+      const volPart = Math.max(0, Math.min(1, (0.35 - vol) / 0.35)) * 2;
+      const ddPart = Math.max(0, Math.min(1, (0.45 - maxDD) / 0.45)) * 2;
+      const divPart = Math.max(0, Math.min(1, div)) * 2;
+
+      let concentrationPenalty = 0;
+      if (maxWeight > 0.55) concentrationPenalty = 1.8;
+      else if (maxWeight > 0.45) concentrationPenalty = 1.2;
+      else if (maxWeight > 0.35) concentrationPenalty = 0.6;
+
+      const score = Math.max(0, Math.min(10, sharpePart + returnPart + volPart + ddPart + divPart - concentrationPenalty));
+
+      return {
+        score,
+        lines: [
+          `Sharpe-вклад: ${sharpePart.toFixed(2)} / 2.5`,
+          `Доходность-вклад: ${returnPart.toFixed(2)} / 1.5`,
+          `Риск-вклад: ${volPart.toFixed(2)} / 2`,
+          `Просадка-вклад: ${ddPart.toFixed(2)} / 2`,
+          `Диверсификация-вклад: ${divPart.toFixed(2)} / 2`,
+          `Штраф за концентрацию: -${concentrationPenalty.toFixed(2)} (макс. вес: ${fmtPct(maxWeight)})`,
+        ]
+      };
+    }
+
+    function renderScore(data) {
+      const result = computePortfolioScore(data);
+      document.getElementById("scoreBadge").textContent = `Оценка: ${result.score.toFixed(1)} / 10`;
+      document.getElementById("scoreText").textContent = result.lines.join("\n");
+    }
+
+    function actionLabel(action) {
+      if (action === "buy") return "Увеличить";
+      if (action === "sell") return "Сократить";
+      if (action === "adjust_minor") return "Подправить";
+      return "Оставить";
+    }
+
+    function renderRebalancing(data) {
+      const body = document.getElementById("rebalanceBody");
+      const commentEl = document.getElementById("rebalanceComment");
+      const rows = data.risk_management?.rebalancing_plan || [];
+
+      if (!rows.length) {
+        body.innerHTML = "<tr><td colspan='6'>Нет данных</td></tr>";
+        commentEl.textContent = "Нет данных для рекомендаций.";
+        return;
       }
 
-      const data = await response.json();
-      document.getElementById("maxSharpe").textContent = renderMaxSharpeText(data.optimization.max_sharpe);
-      document.getElementById("meanReturns").textContent = renderMeanReturnsText(data.summary.mean_returns);
-      rebalancingTipsEl.textContent = renderRebalancingRecommendations(data.optimization);
-      renderPortfolioScore(data.optimization);
+      body.innerHTML = rows.map((item) => {
+        const delta = Number(item.delta || 0);
+        const signed = `${delta >= 0 ? "+" : ""}${fmtPct(delta)}`;
+        return `
+          <tr>
+            <td>${item.asset}</td>
+            <td>${fmtPct(item.current_weight)}</td>
+            <td>${fmtPct(item.target_weight)}</td>
+            <td>${signed}</td>
+            <td class="act-${item.action}">${actionLabel(item.action)}</td>
+            <td>${item.priority === "high" ? "Высокий" : "Низкий"}</td>
+          </tr>
+        `;
+      }).join("");
 
-      lastChartPayload = data.charts;
-      renderCharts(lastChartPayload);
-      statusEl.textContent = "Готово";
-      payloadEl.value = JSON.stringify(payload, null, 2);
-    } catch (error) {
-      statusEl.textContent = "Ошибка";
-      alert(`Не удалось выполнить анализ: ${error.message}`);
+      const top = rows.slice(0, 3);
+      const lines = ["Ключевые действия (ТОП-3):"];
+      top.forEach((item, idx) => {
+        lines.push(`${idx + 1}. ${item.asset}: ${actionLabel(item.action)} на ${fmtPct(Math.abs(item.delta))}`);
+      });
+      lines.push("");
+      lines.push("Правило: сначала исполнять высокий приоритет, затем низкий.");
+      commentEl.textContent = lines.join("\n");
     }
-  }
 
-  function applyRuSample() {
-    setManualFromPayload({
-      prices: ruSample.prices,
-      dates: generateDatesFromStart(ruSample.startDate, Object.values(ruSample.prices)[0].length),
-      risk_free_rate: 0.17,
-      n_portfolios: 1500,
-      frontier_points: 25,
-      dashboard_sample_limit: 400});
-    statusEl.textContent = "Загружен шаблон российских акций";
-  }
+    async function runAnalysis() {
+      statusChipEl.textContent = "Статус: расчет...";
+      try {
+        const payload = payloadFromCurrentMode();
+        payloadEl.value = JSON.stringify(payload, null, 2);
 
-  themeBtn.addEventListener("click", () => {
-    applyTheme(currentTheme() === "dark" ? "light" : "dark");
-  });
+        const response = await fetch("/api/portfolio/dashboard/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken")
+          },
+          body: JSON.stringify(payload)
+        });
 
-  document.getElementById("addAssetBtn").addEventListener("click", () => createAssetRow());
-  document.getElementById("fillRuSampleBtn").addEventListener("click", applyRuSample);
-  document.getElementById("toJsonBtn").addEventListener("click", () => {
-    try {
-      const payload = buildPayloadFromManual();
-      payloadEl.value = JSON.stringify(payload, null, 2);
-      document.getElementById("modeJson").checked = true;
-      switchInputMode();
-      statusEl.textContent = "Ручной ввод преобразован в JSON";
-    } catch (error) {
-      alert(`Не удалось преобразовать: ${error.message}`);
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(text || `HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        renderKpi(data);
+        renderRisk(data);
+        renderSummary(data);
+        renderProjection(data);
+        renderScore(data);
+        renderRebalancing(data);
+        lastCharts = data.charts || null;
+        if (lastCharts) renderCharts(lastCharts);
+        statusChipEl.textContent = "Статус: готово";
+      } catch (error) {
+        statusChipEl.textContent = "Статус: ошибка";
+        alert(`Ошибка анализа: ${error.message}`);
+      }
     }
-  });
 
-  document.querySelectorAll("input[name='inputMode']").forEach(el => {
-    el.addEventListener("change", switchInputMode);
-  });
+    document.getElementById("addAssetBtn").addEventListener("click", () => createAssetRow());
+    toggleJsonBtnEl.addEventListener("click", toggleJsonImportPanel);
+    document.getElementById("sampleBestBtn").addEventListener("click", () => loadManualPreset(manualPresetBest, "пример 1 (лучший)"));
+    document.getElementById("sampleMidBtn").addEventListener("click", () => loadManualPreset(manualPresetMid, "пример 2 (средний)"));
+    document.getElementById("sampleWorstBtn").addEventListener("click", () => loadManualPreset(manualPresetWorst, "пример 3 (худший)"));
+    document.getElementById("loadMoexBtn").addEventListener("click", async () => {
+      try {
+        statusChipEl.textContent = "Статус: загрузка MOEX...";
+        const loaded = await loadMoexForAllRows();
+        statusChipEl.textContent = `Статус: MOEX загружен (${loaded})`;
+      } catch (error) {
+        statusChipEl.textContent = "Статус: ошибка MOEX";
+        alert(`Не удалось загрузить MOEX: ${error.message}`);
+      }
+    });
+    document.getElementById("importJsonBtn").addEventListener("click", () => {
+      try {
+        const payload = JSON.parse(payloadEl.value);
+        setManualFromPayload(payload);
+        statusChipEl.textContent = "Статус: JSON импортирован";
+      } catch (error) {
+        alert(`Не удалось импортировать JSON: ${error.message}`);
+      }
+    });
 
-  const savedTheme = localStorage.getItem(THEME_KEY);
-  applyTheme(savedTheme === "light" ? "light" : "dark");
+    document.getElementById("runBtn").addEventListener("click", runAnalysis);
 
-  setManualFromPayload(defaultPayload);
-  switchInputMode();
-  document.getElementById("runBtn").addEventListener("click", runAnalysis);
-  runAnalysis();
-</script>
+    window.addEventListener("resize", () => {
+      if (!lastCharts) return;
+      ["chartFrontier", "chartMonteCarlo", "chartCorrelation", "chartProjection"].forEach((id) => {
+        Plotly.Plots.resize(id);
+      });
+    });
+
+    const now = new Date();
+    const yearAgo = new Date();
+    yearAgo.setFullYear(now.getFullYear() - 1);
+    const toIso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    moexTillEl.value = toIso(now);
+    moexFromEl.value = toIso(yearAgo);
+
+    setManualFromPayload(demoPayload);
+    runAnalysis();
+  </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

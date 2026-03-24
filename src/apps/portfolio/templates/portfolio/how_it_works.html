@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Как работает сервис</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #020805;
+      --panel: rgba(6, 20, 12, 0.92);
+      --border: rgba(52, 255, 133, 0.34);
+      --text: #c4ffd7;
+      --muted: #79c892;
+      --accent: #34ff85;
+      --accent-soft: rgba(52, 255, 133, 0.12);
+      --shadow: 0 0 28px rgba(52, 255, 133, 0.15);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(900px 420px at 0% 0%, rgba(52, 255, 133, 0.1), transparent 70%),
+        radial-gradient(900px 420px at 100% 100%, rgba(52, 255, 133, 0.08), transparent 70%),
+        var(--bg);
+      color: var(--text);
+      font-family: "Share Tech Mono", monospace;
+      line-height: 1.5;
+      letter-spacing: 0.02em;
+    }
+
+    .wrap {
+      width: min(1100px, 94vw);
+      margin: 18px auto 28px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    h1, h2 { margin: 0; text-transform: uppercase; color: var(--accent); }
+    h1 { font-size: clamp(1.1rem, 2.2vw, 1.8rem); }
+    h2 { font-size: 0.98rem; margin-bottom: 8px; }
+    p { margin: 6px 0; }
+    ul { margin: 8px 0 0 18px; }
+    li { margin: 5px 0; }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--accent-soft);
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 0.78rem;
+      margin-top: 8px;
+    }
+
+    .muted { color: var(--muted); }
+
+    .back {
+      display: inline-block;
+      text-decoration: none;
+      color: var(--text);
+      border: 1px solid var(--border);
+      background: var(--accent-soft);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.84rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="panel">
+      <h1>Как работает сервис</h1>
+      <p class="muted">Короткая справка по каждому элементу интерфейса.</p>
+      <span class="chip">MOEX + Марковиц + Monte Carlo</span>
+    </section>
+
+    <section class="panel">
+      <h2>Шаг 1. Ввод портфеля</h2>
+      <ul>
+        <li><b>Тикер</b> — код бумаги (например, SBER, LKOH).</li>
+        <li><b>Вес, %</b> — текущая доля бумаги в вашем портфеле.</li>
+        <li><b>Средняя цена</b> — вручную нужна только в демо-режиме без MOEX.</li>
+        <li><b>Загрузить из MOEX</b> — подтягивает реальные исторические цены по тикерам.</li>
+        <li><b>Ручной -> JSON</b> — переводит форму в JSON для отладки и ручной правки.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Шаг 2. Параметры расчета</h2>
+      <ul>
+        <li><b>Безрисковая ставка</b> — используется в коэффициенте Sharpe (по умолчанию 12.5% = 0.125).</li>
+        <li><b>Профиль цели</b> — выбор целевого портфеля: консервативный/сбалансированный/агрессивный.</li>
+        <li><b>Портфелей Monte Carlo</b> — сколько случайных портфелей генерировать.</li>
+        <li><b>Точек эффективной границы</b> — детализация кривой Марковица.</li>
+        <li><b>Порог ребалансировки</b> — минимальное отклонение веса для действия buy/sell.</li>
+        <li><b>Горизонт и сценарии прогноза</b> — параметры моделирования итоговой стоимости.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Что означают блоки результатов</h2>
+      <ul>
+        <li><b>Ключевые показатели</b> — доходность, риск, Sharpe, диверсификация.</li>
+        <li><b>Оценка портфеля</b> — интегральный скоринг 0..10 (эвристика для быстрого сравнения).</li>
+        <li><b>Сводка риска</b> — сравнение текущего и целевого портфеля (VaR, CVaR, просадка).</li>
+        <li><b>Ребалансировка</b> — таблица действий: что увеличить/сократить и приоритет.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Графики</h2>
+      <ul>
+        <li><b>Эффективная граница</b> — баланс риска и доходности по Марковицу.</li>
+        <li><b>Monte Carlo портфели</b> — облако случайных комбинаций с выделением лучших точек.</li>
+        <li><b>Матрица корреляций</b> — взаимосвязь доходностей активов.</li>
+        <li><b>Распределение итоговой стоимости</b> — прогноз диапазона результата портфеля.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <a class="back" href="/dashboard/">Вернуться в консоль</a>
+    </section>
+  </div>
+</body>
+</html>
