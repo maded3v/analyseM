@@ -608,12 +608,12 @@
     };
 
     const manualPresetBest = [
-      { ticker: "SBER", weightPct: 26, avg: 310 },
+      { ticker: "SBER", weightPct: 20, avg: 310 },
       { ticker: "LKOH", weightPct: 22, avg: 7600 },
-      { ticker: "YDEX", weightPct: 16, avg: 4300 },
+      { ticker: "YDEX", weightPct: 24, avg: 4300 },
       { ticker: "NVTK", weightPct: 14, avg: 1090 },
       { ticker: "ROSN", weightPct: 12, avg: 585 },
-      { ticker: "GAZP", weightPct: 10, avg: 174 }
+      { ticker: "GAZP", weightPct: 8, avg: 174 }
     ];
 
     const manualPresetMid = [
@@ -626,11 +626,11 @@
     ];
 
     const manualPresetWorst = [
-      { ticker: "GAZP", weightPct: 42, avg: 174 },
-      { ticker: "ROSN", weightPct: 22, avg: 585 },
-      { ticker: "NVTK", weightPct: 14, avg: 1090 },
+      { ticker: "GAZP", weightPct: 45, avg: 174 },
+      { ticker: "ROSN", weightPct: 25, avg: 585 },
+      { ticker: "NVTK", weightPct: 7, avg: 1090 },
       { ticker: "SBER", weightPct: 10, avg: 294 },
-      { ticker: "LKOH", weightPct: 7, avg: 7600 },
+      { ticker: "LKOH", weightPct: 8, avg: 7600 },
       { ticker: "YDEX", weightPct: 5, avg: 4300 }
     ];
 
@@ -835,14 +835,28 @@
       return loadedCount;
     }
 
-    function buildSyntheticSeries(avgPrice, length, assetIndex) {
+    function syntheticTickerTrend(ticker) {
+      const trends = {
+        YDEX: 0.20,
+        LKOH: 0.14,
+        SBER: 0.12,
+        NVTK: 0.09,
+        ROSN: 0.05,
+        GAZP: 0.02,
+      };
+      return Number(trends[ticker] ?? 0.04);
+    }
+
+    function buildSyntheticSeries(avgPrice, length, assetIndex, ticker) {
       const avg = Math.max(Number(avgPrice || 0), 0.01);
+      const trendAnnual = syntheticTickerTrend(String(ticker || "").toUpperCase());
+      const trendDaily = trendAnnual / 252;
       const arr = [];
       for (let t = 0; t < length; t += 1) {
         const s1 = 0.018 * Math.sin((t + 1) * (assetIndex + 1) / 9);
         const s2 = 0.007 * Math.cos((t + 2) * (assetIndex + 2) / 7);
-        const drift = 0.0004 * (t - length / 2);
-        const raw = avg * (1 + s1 + s2 + drift);
+        const trend = Math.pow(1 + trendDaily, t - length / 2);
+        const raw = avg * (1 + s1 + s2) * trend;
         arr.push(Math.max(raw, avg * 0.4));
       }
       const mean = arr.reduce((acc, x) => acc + x, 0) / arr.length;
@@ -987,7 +1001,7 @@
           }
         } else {
           const targetLength = useDates.length || fallbackLength;
-          prices[item.ticker] = buildSyntheticSeries(item.avg, targetLength, idx);
+          prices[item.ticker] = buildSyntheticSeries(item.avg, targetLength, idx, item.ticker);
         }
         rawWeights[item.ticker] = item.weight;
       });
@@ -1138,26 +1152,28 @@
       const nAssets = Math.max(weights.length, 1);
       const equalWeight = 1 / nAssets;
 
-      const sharpePart = Math.max(0, Math.min(1, (sharpe + 1.0) / 3.0)) * 2.5;
-      const returnPart = Math.max(0, Math.min(1, (expRet + 0.15) / 0.45)) * 1.5;
-      const volPart = Math.max(0, Math.min(1, (0.35 - vol) / 0.35)) * 2;
-      const ddPart = Math.max(0, Math.min(1, (0.45 - maxDD) / 0.45)) * 2;
-      const divPart = Math.max(0, Math.min(1, div)) * 2;
+      const sharpePart = Math.max(0, Math.min(1, (sharpe + 0.5) / 2.5)) * 3.0;
+      const returnPart = Math.max(0, Math.min(1, (expRet + 0.05) / 0.35)) * 2.5;
+      const volPart = Math.max(0, Math.min(1, (0.33 - vol) / 0.33)) * 1.8;
+      const ddPart = Math.max(0, Math.min(1, (0.42 - maxDD) / 0.42)) * 1.7;
+      const divPart = Math.max(0, Math.min(1, div)) * 1.5;
 
       const concentrationRatio = Math.max(0, (maxWeight - equalWeight) / (1 - equalWeight));
-      const concentrationPenalty = concentrationRatio * 2.0;
+      const concentrationPenalty = concentrationRatio * 4.0;
+      const lowReturnPenalty = expRet < 0.10 ? Math.min(2.2, (0.10 - expRet) * 10) : 0;
 
-      const score = Math.max(0, Math.min(10, sharpePart + returnPart + volPart + ddPart + divPart - concentrationPenalty));
+      const score = Math.max(0, Math.min(10, sharpePart + returnPart + volPart + ddPart + divPart - concentrationPenalty - lowReturnPenalty));
 
       return {
         score,
         lines: [
-          `Sharpe-вклад: ${sharpePart.toFixed(2)} / 2.5`,
-          `Доходность-вклад: ${returnPart.toFixed(2)} / 1.5`,
-          `Риск-вклад: ${volPart.toFixed(2)} / 2`,
-          `Просадка-вклад: ${ddPart.toFixed(2)} / 2`,
-          `Диверсификация-вклад: ${divPart.toFixed(2)} / 2`,
+          `Sharpe-вклад: ${sharpePart.toFixed(2)} / 3.0`,
+          `Доходность-вклад: ${returnPart.toFixed(2)} / 2.5`,
+          `Риск-вклад: ${volPart.toFixed(2)} / 1.8`,
+          `Просадка-вклад: ${ddPart.toFixed(2)} / 1.7`,
+          `Диверсификация-вклад: ${divPart.toFixed(2)} / 1.5`,
           `Штраф за концентрацию: -${concentrationPenalty.toFixed(2)} (макс. вес: ${fmtPct(maxWeight)})`,
+          `Штраф за низкую доходность: -${lowReturnPenalty.toFixed(2)}`,
         ]
       };
     }
