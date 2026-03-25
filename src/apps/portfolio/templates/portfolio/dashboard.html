@@ -608,30 +608,30 @@
     };
 
     const manualPresetBest = [
-      { ticker: "SBER", weightPct: 20, avg: 310 },
-      { ticker: "LKOH", weightPct: 22, avg: 7600 },
       { ticker: "YDEX", weightPct: 24, avg: 4300 },
+      { ticker: "LKOH", weightPct: 22, avg: 7600 },
+      { ticker: "SBER", weightPct: 18, avg: 310 },
       { ticker: "NVTK", weightPct: 14, avg: 1090 },
       { ticker: "ROSN", weightPct: 12, avg: 585 },
-      { ticker: "GAZP", weightPct: 8, avg: 174 }
+      { ticker: "GAZP", weightPct: 10, avg: 174 }
     ];
 
     const manualPresetMid = [
-      { ticker: "SBER", weightPct: 18, avg: 294 },
-      { ticker: "GAZP", weightPct: 16, avg: 174 },
-      { ticker: "LKOH", weightPct: 17, avg: 7600 },
+      { ticker: "SBER", weightPct: 20, avg: 294 },
+      { ticker: "GAZP", weightPct: 20, avg: 174 },
+      { ticker: "LKOH", weightPct: 16, avg: 7600 },
       { ticker: "YDEX", weightPct: 16, avg: 4300 },
-      { ticker: "ROSN", weightPct: 16, avg: 585 },
-      { ticker: "NVTK", weightPct: 17, avg: 1090 }
+      { ticker: "ROSN", weightPct: 14, avg: 585 },
+      { ticker: "NVTK", weightPct: 14, avg: 1090 }
     ];
 
     const manualPresetWorst = [
-      { ticker: "GAZP", weightPct: 45, avg: 174 },
-      { ticker: "ROSN", weightPct: 25, avg: 585 },
-      { ticker: "NVTK", weightPct: 7, avg: 1090 },
-      { ticker: "SBER", weightPct: 10, avg: 294 },
-      { ticker: "LKOH", weightPct: 8, avg: 7600 },
-      { ticker: "YDEX", weightPct: 5, avg: 4300 }
+      { ticker: "GAZP", weightPct: 75, avg: 174 },
+      { ticker: "ROSN", weightPct: 10, avg: 585 },
+      { ticker: "NVTK", weightPct: 5, avg: 1090 },
+      { ticker: "SBER", weightPct: 4, avg: 294 },
+      { ticker: "LKOH", weightPct: 3, avg: 7600 },
+      { ticker: "YDEX", weightPct: 3, avg: 4300 }
     ];
 
     function getCookie(name) {
@@ -837,12 +837,12 @@
 
     function syntheticTickerTrend(ticker) {
       const trends = {
-        YDEX: 0.20,
-        LKOH: 0.14,
+        YDEX: 0.24,
+        LKOH: 0.16,
         SBER: 0.12,
-        NVTK: 0.09,
-        ROSN: 0.05,
-        GAZP: 0.02,
+        NVTK: 0.08,
+        ROSN: 0.01,
+        GAZP: -0.03,
       };
       return Number(trends[ticker] ?? 0.04);
     }
@@ -1152,26 +1152,26 @@
       const nAssets = Math.max(weights.length, 1);
       const equalWeight = 1 / nAssets;
 
-      const sharpePart = Math.max(0, Math.min(1, (sharpe + 0.5) / 2.5)) * 3.0;
-      const returnPart = Math.max(0, Math.min(1, (expRet + 0.05) / 0.35)) * 2.5;
-      const volPart = Math.max(0, Math.min(1, (0.33 - vol) / 0.33)) * 1.8;
-      const ddPart = Math.max(0, Math.min(1, (0.42 - maxDD) / 0.42)) * 1.7;
-      const divPart = Math.max(0, Math.min(1, div)) * 1.5;
+      const sharpePart = Math.max(0, Math.min(1, (sharpe + 0.2) / 1.8)) * 4.0;
+      const returnPart = Math.max(0, Math.min(1, (expRet - 0.02) / 0.20)) * 2.5;
+      const volPart = Math.max(0, Math.min(1, (0.28 - vol) / 0.28)) * 1.3;
+      const ddPart = Math.max(0, Math.min(1, (0.38 - maxDD) / 0.38)) * 1.2;
+      const divPart = Math.max(0, Math.min(1, div)) * 1.0;
 
       const concentrationRatio = Math.max(0, (maxWeight - equalWeight) / (1 - equalWeight));
-      const concentrationPenalty = concentrationRatio * 4.0;
-      const lowReturnPenalty = expRet < 0.10 ? Math.min(2.2, (0.10 - expRet) * 10) : 0;
+      const concentrationPenalty = concentrationRatio * 5.0;
+      const lowReturnPenalty = expRet < 0.06 ? Math.min(2.5, (0.06 - expRet) * 20) : 0;
 
       const score = Math.max(0, Math.min(10, sharpePart + returnPart + volPart + ddPart + divPart - concentrationPenalty - lowReturnPenalty));
 
       return {
         score,
         lines: [
-          `Sharpe-вклад: ${sharpePart.toFixed(2)} / 3.0`,
+          `Sharpe-вклад: ${sharpePart.toFixed(2)} / 4.0`,
           `Доходность-вклад: ${returnPart.toFixed(2)} / 2.5`,
-          `Риск-вклад: ${volPart.toFixed(2)} / 1.8`,
-          `Просадка-вклад: ${ddPart.toFixed(2)} / 1.7`,
-          `Диверсификация-вклад: ${divPart.toFixed(2)} / 1.5`,
+          `Риск-вклад: ${volPart.toFixed(2)} / 1.3`,
+          `Просадка-вклад: ${ddPart.toFixed(2)} / 1.2`,
+          `Диверсификация-вклад: ${divPart.toFixed(2)} / 1.0`,
           `Штраф за концентрацию: -${concentrationPenalty.toFixed(2)} (макс. вес: ${fmtPct(maxWeight)})`,
           `Штраф за низкую доходность: -${lowReturnPenalty.toFixed(2)}`,
         ]
