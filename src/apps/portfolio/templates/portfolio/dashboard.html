@@ -119,6 +119,7 @@
       min-height: 0;
     }
 
+
     .layout {
       display: grid;
       grid-template-columns: 420px 1fr;
@@ -310,12 +311,23 @@
     .score-badge {
       display: inline-block;
       margin-bottom: 8px;
-      padding: 4px 10px;
+      padding: 6px 12px;
       border-radius: 999px;
       border: 1px solid rgba(52, 255, 133, 0.45);
       background: rgba(52, 255, 133, 0.14);
-      font-size: 0.8rem;
+      font-size: 0.92rem;
       font-weight: 700;
+    }
+
+    .brand-link {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(52, 255, 133, 0.45);
+    }
+
+    .brand-link:hover {
+      color: #bfffd8;
+      border-bottom-color: rgba(191, 255, 216, 0.8);
     }
 
     .table-wrap {
@@ -399,7 +411,7 @@
     <section class="panel hero">
       <div>
         <h1>Консоль анализа портфеля и оптимизации Марковица</h1>
-        <div class="tiny">Все на русском: импорт портфеля, корреляции, эффективная граница, Monte Carlo, риск-менеджмент и ребалансировка.</div>
+        <div class="tiny"><a class="brand-link" href="https://t.me/selfmadecodedev" target="_blank" rel="noopener noreferrer">made.dev</a></div>
       </div>
       <div class="chip-row">
         <a href="/dashboard/how-it-works/" class="help-link" target="_blank" rel="noopener noreferrer">Как все работает?</a>
@@ -608,30 +620,30 @@
     };
 
     const manualPresetBest = [
-      { ticker: "YDEX", weightPct: 24, avg: 4300 },
-      { ticker: "LKOH", weightPct: 22, avg: 7600 },
+      { ticker: "GMKN", weightPct: 22, avg: 146 },
+      { ticker: "NVTK", weightPct: 20, avg: 1090 },
       { ticker: "SBER", weightPct: 18, avg: 310 },
-      { ticker: "NVTK", weightPct: 14, avg: 1090 },
-      { ticker: "ROSN", weightPct: 12, avg: 585 },
-      { ticker: "GAZP", weightPct: 10, avg: 174 }
+      { ticker: "ROSN", weightPct: 14, avg: 585 },
+      { ticker: "TATN", weightPct: 14, avg: 635 },
+      { ticker: "YDEX", weightPct: 12, avg: 4300 }
     ];
 
     const manualPresetMid = [
       { ticker: "SBER", weightPct: 20, avg: 294 },
-      { ticker: "GAZP", weightPct: 20, avg: 174 },
-      { ticker: "LKOH", weightPct: 16, avg: 7600 },
-      { ticker: "YDEX", weightPct: 16, avg: 4300 },
-      { ticker: "ROSN", weightPct: 14, avg: 585 },
-      { ticker: "NVTK", weightPct: 14, avg: 1090 }
+      { ticker: "NVTK", weightPct: 18, avg: 1090 },
+      { ticker: "ROSN", weightPct: 17, avg: 585 },
+      { ticker: "TATN", weightPct: 15, avg: 635 },
+      { ticker: "YDEX", weightPct: 15, avg: 4300 },
+      { ticker: "GAZP", weightPct: 15, avg: 174 }
     ];
 
     const manualPresetWorst = [
-      { ticker: "GAZP", weightPct: 75, avg: 174 },
-      { ticker: "ROSN", weightPct: 10, avg: 585 },
-      { ticker: "NVTK", weightPct: 5, avg: 1090 },
-      { ticker: "SBER", weightPct: 4, avg: 294 },
-      { ticker: "LKOH", weightPct: 3, avg: 7600 },
-      { ticker: "YDEX", weightPct: 3, avg: 4300 }
+      { ticker: "ALRS", weightPct: 35, avg: 37 },
+      { ticker: "CHMF", weightPct: 25, avg: 876 },
+      { ticker: "AFKS", weightPct: 18, avg: 12.7 },
+      { ticker: "MAGN", weightPct: 10, avg: 61 },
+      { ticker: "GAZP", weightPct: 8, avg: 174 },
+      { ticker: "LKOH", weightPct: 4, avg: 7600 }
     ];
 
     function getCookie(name) {
@@ -837,12 +849,18 @@
 
     function syntheticTickerTrend(ticker) {
       const trends = {
-        YDEX: 0.24,
-        LKOH: 0.16,
-        SBER: 0.12,
-        NVTK: 0.08,
-        ROSN: 0.01,
-        GAZP: -0.03,
+        GMKN: 0.18,
+        NVTK: 0.12,
+        SBER: 0.08,
+        ROSN: 0.05,
+        TATN: 0.04,
+        YDEX: -0.04,
+        GAZP: -0.10,
+        LKOH: -0.08,
+        ALRS: -0.22,
+        CHMF: -0.18,
+        AFKS: -0.14,
+        MAGN: -0.12,
       };
       return Number(trends[ticker] ?? 0.04);
     }
@@ -1162,7 +1180,8 @@
       const concentrationPenalty = concentrationRatio * 5.0;
       const lowReturnPenalty = expRet < 0.06 ? Math.min(2.5, (0.06 - expRet) * 20) : 0;
 
-      const score = Math.max(0, Math.min(10, sharpePart + returnPart + volPart + ddPart + divPart - concentrationPenalty - lowReturnPenalty));
+      const rawScore = sharpePart + returnPart + volPart + ddPart + divPart - concentrationPenalty - lowReturnPenalty;
+      const score = Math.max(0, Math.min(10, 3.0 + rawScore * 1.45));
 
       return {
         score,
@@ -1174,13 +1193,21 @@
           `Диверсификация-вклад: ${divPart.toFixed(2)} / 1.0`,
           `Штраф за концентрацию: -${concentrationPenalty.toFixed(2)} (макс. вес: ${fmtPct(maxWeight)})`,
           `Штраф за низкую доходность: -${lowReturnPenalty.toFixed(2)}`,
+          `Нормализация шкалы: базовый +3.00, коэффициент x1.45`,
         ]
       };
     }
 
+    function scoreLabel(score) {
+      if (score >= 8.0) return "Отлично";
+      if (score >= 6.0) return "Хорошо";
+      if (score >= 4.0) return "Средне";
+      return "Слабо";
+    }
+
     function renderScore(data) {
       const result = computePortfolioScore(data);
-      document.getElementById("scoreBadge").textContent = `Оценка: ${result.score.toFixed(2)} / 10`;
+      document.getElementById("scoreBadge").textContent = `Оценка: ${result.score.toFixed(2)} / 10 (${scoreLabel(result.score)})`;
       document.getElementById("scoreText").textContent = result.lines.join("\n");
     }
 
